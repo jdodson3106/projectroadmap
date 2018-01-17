@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+      </div> <!-- end of col-md-3 div -->
+
+      <div class="col-md-6 login-thumbnail">
+        <div class="row form-box">
+          <div class="login-box">
+            {% if form.errors %}
+              {% for error in form.errors%}
+              <div class="alert alert-danger">
+                <strong>{{ error|striptags }}</strong>
+              </div>
+              {% endfor %}
+              {% for error in form.non_field_errors %}
+                <div class="alert alert-danger">
+                  <strong>{{ error|striptags }}</strong>
+                </div>
+              {% endfor %}
+            {% endif %}
+            <h2 align='center' class="login-heading">Update {{user.first_name}}'s Info</h2><hr>
+              <form role="form" method="post">
+                {% csrf_token %}
+                <!-- <label class="login-label">{{form.email.label}}</label> -->
+                <input type="text" name="city" class="form-control login-field" value="{{user.basicuserprofile.city}}"><br>
+
+                <!-- <label class="login-label">{{form.first_name.label}}</label> -->
+                <input type="text" name="state" class="form-control login-field" value="{{user.basicuserprofile.state}}"><br>
+
+                <!-- <label class="login-label">{{form.last_name.label}}</label> -->
+                <input type="text" name="zipcode" class="form-control login-field" value="{{user.basicuserprofile.zipcode}}"><br>
+
+                <!-- <label class="login-label">{{form.password1.label}}</label> -->
+                <input type="text" name="birth_date" class="form-control login-field" value="{{user.basicuserprofile.birth_date | date:"SHORT_DATE_FORMAT"}}"><br>
+
+                <!-- <label class="login-label">{{form.password2.label}}</label> -->
+                <input type="textarea" name="bio" class="form-control login-field" value="{{user.basicuserprofile.bio}}"><br>
+
+                <button type="submit" class="btn login-btn pull-right">Update</button>
+                <a href="{% url 'accounts:profile' %}" class="btn cancel-btn">Cancel</a>
+              </form>
+          </div> <!-- end of login-box div -->
+        </div> <!-- end of form-box div -->
+      </div> <!-- end of login-thumbnail div -->
+
+      <div class="col-md-3">
+      </div> <!-- end of col-md-3 div -->
+
+    </div> <!-- end of row div -->
+  </div> <!-- end of base container div -->
+{% endblock %}

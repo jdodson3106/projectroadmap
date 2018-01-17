@@ -1,0 +1,76 @@
+.navbar{
+  background-color: #474954;
+  border: 1px solid #474954;
+  border-radius: 0px;
+  margin-bottom: 0px;
+}
+
+/************************
+    ADMIN HOME PAGE CSS
+ ***********************/
+
+.main-body {
+   margin-left: 230px !important;
+ }
+
+.nav-tabs>li.active {
+  background-color: transparent !important;
+}
+
+.sidebar-nav .active a{
+  color: black !important;
+  margin: 0px;
+}
+
+ .sidebar-container{
+   position: fixed;
+   z-index: 1;
+   height: 100%;
+   width: 230px;
+   background-color: #A9B3CE;
+   color: #FFFCFC;
+ }
+
+ .sidebar-container .sidebar-nav{
+   width: 100% !important;
+   color: #FFFCFC;
+   border: none;
+ }
+
+ .sidebar-container .sidebar-nav li{
+   width: 100%;
+ }
+
+ .sidebar-container .sidebar-nav li a {
+   color: #FFFCFC;
+ }
+
+.sidebar-container .sidebar-nav li a:hover{
+  background-color: #FFFCFC;
+  color: #7284A8;
+  margin: 0px;
+}
+
+ .sidebar-container .active {
+   width: 100%;
+   background-color: #7284A8;
+
+ }
+
+ .custom-jumbotron{
+   margin-left: 20px;
+   margin-right: 20px;
+   background-color: transparent;
+   padding-bottom: 0px;
+   margin-bottom: 0px;
+ }
+
+ .project-container{
+   margin-bottom: 5px;
+   padding: 5px;
+   border: 1px solid #DDDDDD;
+   border-radius: 5px;
+   box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14),
+                           0 1px 5px 0 rgba(0,0,0,0.12),
+                           0 3px 1px -2px rgba(0,0,0,0.2);
+ }

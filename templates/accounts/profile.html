@@ -1,0 +1,112 @@
+{% extends "profile_base.html" %}
+{% block body %}
+
+
+
+<nav id="my-nav" class="navbar navbar-default proflie-bottom-nav center">
+  <div class="container nav-container-one" align='center'>
+    <ul class="nav navbar-nav center profile-nav-links">
+      <li>
+        <a href="{% url 'communities:public_community_list' %}">View Communities</a>
+      </li>
+      <li>
+        <a href="{% url 'communities:new_community' %}">Create New Communities</a>
+      </li>
+
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <div class="container-fluid settings-link">
+          <li><img src="/static/images/settings.png" alt=""> </li>
+      </div>
+    </ul>
+  </div>
+</nav>
+
+  <div class="row profile-row">
+    <div class="container">
+      <div class=" col-md-5 tabs-container">
+        <ul class="nav nav-tabs">
+          <li class="active"><a data-toggle="tab" href="#home">My Communities</a></li>
+          <li class=""><a data-toggle="tab" href="#community_list">Community List</a></li>
+        </ul>
+      </div>
+
+      <div class="tab-content">
+
+        <div id='home' class="tab-pane fade in active">
+          <div class="col-md-12 community-container">
+            <div class="container-fluid col-md-5">
+              <h3>My Communities</h3>
+              {% for community in communities %}
+                  <h4><a href="{% url 'communities:community_detail' slug=community.slug %}">{{community.name}}</a><small> ({{community.privacy}})</small></h4>
+                  {% if not community.motto == null %}
+                    <p>"<i>{{community.motto}}</i>"</p>
+                  {% else %}
+                    <p>No Motto Available</p>
+                  {% endif %}
+                  <p><span class="badge">{{ community.members.count }}</span> members</p>
+                  <p>Owner: <small>{{community.owner.first_name.capitalize}} {{community.owner.last_name.capitalize}}</small></p>
+                  <a class="btn btn-primary"href="{% url 'communities:join_community' slug=community.slug %}">Join</a>
+                  <a class="pull-right btn btn-danger" href="{% url 'communities:delete_community' slug=community.slug %}">Delete Community</a>
+                  <hr>
+              {% endfor %}
+              {% if communities.has_other_pages %}
+                <div class="container"align='center'>
+                  <ul class="pagination">
+                    {% if communities.has_previous %}
+                      <li><a href="?page={{ communities.previous_page_number }}">&laquo;</a></li>
+                    {% else %}
+                      <li class="disabled"><span>&laquo;</span></li>
+                    {% endif %}
+                    {% for i in communities.paginator.page_range %}
+                      {% if communities.number == i %}
+                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                      {% else %}
+                        <li><a href="?page={{ i }}">{{ i }}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                    {% if communities.has_next %}
+                      <li><a href="?page={{ communities.next_page_number }}">&raquo;</a></li>
+                    {% else %}
+                      <li class="disabled"><span>&raquo;</span></li>
+                    {% endif %}
+                  </ul>
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+
+        <div id="community_list" class="tab-pane fade">
+          <div class="col-md-12 community-container">
+            <div class="container-fluid col-md-5">
+              <h3>Joined Communities</h3>
+              <table class="table table-condensed">
+                <!-- <tr>
+                  <th>Owned</th>
+                  <th>Community Name</th>
+                  <th>Members</th>
+                </tr> -->
+              {% for community in member_communities %}
+                <tr>
+                  {% if community.owner == request.user %}
+                  <td><span class="glyphicon glyphicon-ok-sign"></span></td>
+                  {% else %}
+                  <td><span class="glyphicon glyphicon glyphicon-minus"></span></td>
+                  {% endif %}
+                  <td><a href="{% url 'communities:community_detail' slug=community.slug %}">{{community.name}}</a> </td>
+                  <td class=""><span class="badge">{{community.members.count}} members</span></td>
+                </tr>
+              {% endfor %}
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+{% endblock %}

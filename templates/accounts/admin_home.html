@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <div class="sidebar-container">
+    <h4 align='center'><img class="img-circle" src="projects{{user.profile_image.url}}" alt="">
+      {{user.first_name}} {{user.last_name}} <i>({{user.employee_number}})</i>
+    </h4><hr>
+    <ul class="nav navbar-nav nav-tabs sidebar-nav">
+      <li class="active"><a data-toggle="tab"  href="#overview">Overview</a></li>
+      <li><a data-toggle="tab"  href="#employee-details">Employee Details</a> </li>
+      <li><a data-toggle="tab"  href="#projects">Projects</a> </li>
+      <li><a data-toggle="tab"  href="#">Stuff</a></li>
+    </ul>
+  </div>
+
+  <div class="tab-content">
+
+    <div id="overview" class="tab-pane fade in active main-body">
+      <div class="jumbotron custom-jumbotron">
+        <div class="row">
+          <div class="col-md-5 col-md-offset-1">
+            <h2>Overview</h2>
+          </div>
+          <div class="col-md-5">
+            <h2 id='time' class=" pull-right"></h2>
+          </div>
+        </div>
+        <hr>
+      </div>
+    </div>
+
+    <div id="employee-details" class="tab-pane fade in main-body">
+      <div class="container-fluid">
+        {% for employee in employees %}
+          <h1>{{employee.first_name}}</h1>
+          <h1>{{employee.admin}}</h1>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div id="projects" class="tab-pane fade in main-body">
+      <div class="jumbotron custom-jumbotron">
+        <div class="row">
+          <div class="col-md-5 col-md-offset-1">
+            <h2>Projects</h2>
+          </div>
+          <div class="col-md-5">
+            <h1><a class="btn btn-primary pull-right" href="{% url 'projects:new_project' %}">Add New Project</a></h1>
+          </div>
+        </div>
+        <hr>
+      </div>
+
+
+      <div class="container-fluid">
+        <div class="row">
+        {% for project in projects %}
+          <div class="col-md-4 col-sm-6 thmbnail">
+            <a href="{% url 'projects:project_view' pk=project.pk %}">
+              <div id="color-set" class="project-container caption">
+                <h5>{{project.title}}</h5>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+        </div>
+        <script type="text/javascript">
+          // assignColor();
+        </script>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}
