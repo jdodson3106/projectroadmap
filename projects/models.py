@@ -18,7 +18,12 @@ class Project(models.Model):
 
 
 class Feature(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL,
+                              on_delete=models.CASCADE,
+                              related_name='feature_owner')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    assigned_to = models.ForeignKey(Employee, on_delete=models.CASCADE,
+                                    related_name='feature_assignee')
     title = models.CharField(max_length=200)
     details = models.CharField(max_length=2000)
     estimated_completion_time = models.CharField(max_length=200)

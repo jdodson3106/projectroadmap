@@ -2,6 +2,7 @@
 
 {% block body %}
   <div class="container-fluid">
+    <a class="btn btn-primary" href="{% url 'projects:add_feature' pk=project.pk %}"> New Feature</a>
     <h1>{{project.title}}</h1>
     <h4>{{project.owner.first_name}}</h4>
   </div>

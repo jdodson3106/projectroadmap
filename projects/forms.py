@@ -19,3 +19,9 @@ class CreateProjectForm(ModelForm):
 
         project.save()
         return project
+
+class FeatureCreationForm(ModelForm):
+
+    class Meta:
+        model = Feature
+        fields = ['title', 'details', 'estimated_completion_time', 'assigned_to' ]

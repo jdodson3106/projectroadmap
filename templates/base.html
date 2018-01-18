@@ -55,21 +55,23 @@
       <ul class="nav navbar-nav navbar-right">
         {% if request.user.is_authenticated  %}
           <li><a href="{% url 'accounts:admin_home' pk=user.pk %}"><span class="glyphicon glyphicon-user"></span> {{user.first_name}} {{user.last_name}}</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'accounts:add_employee' %}">Add New Employee</a></li>
+              <li><a href="#">Export Time Sheets</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+          </li>
+          <li><a href="{% url 'accounts:logout' %}">Logout</a> </li>
         {% else %}
-          <li><a href="#">Link</a> </li>
+          <li><a href="{% url 'accounts:login' %}">Login</a> </li>
         {% endif %}
         <li><div id="">
         </div> </li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="{% url 'accounts:add_employee' %}">Add New Employee</a></li>
-            <li><a href="#">Export Time Sheets</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-          </ul>
-        </li>
+
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
