@@ -63,3 +63,27 @@ def add_feature(request, pk):
         print('from invalid')
     args = {'form':form, 'project':project}
     return redirect('accounts:admin_home', pk=project.owner.pk)
+
+class FeatureView(DetailView):
+    model = Feature
+    template_name = 'projects/feature_detail.html'
+
+
+# TODO: Add slug field to project to create specific call variables between
+#       feature and project calls.
+def add_task_to_feature(request, pk):
+    form = TaskCreationForm(request.POST or None)
+    feature = get_object_or_404(Feature, pk=pk)
+
+    if form.is_valid():
+        task = Task()
+        task.feature = feature
+        task.project = feature.project
+        task.title = form.cleaned_data.get('title')
+        task.details = form.cleaned_data.get('detials')
+        task.estimated_completion_time = form.cleaned_data.get('estimated_completion_time')
+        task.assigned_to = form.cleaned_data.get('assigned_to')
+        task.save()
+        return redirect('projects:feature_veiw', pk=pk)
+    args = {'form':form, 'feature':feature}
+    return redirect('accounts:admin_home', pk=feature.project)

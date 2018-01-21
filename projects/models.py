@@ -46,6 +46,8 @@ class Task(models.Model):
     details = models.CharField(max_length=2000)
     estimated_completion_time = models.CharField(max_length=200)
     cost = models.CharField(max_length=200)
+    assigned_to = models.ForeignKey(Employee, on_delete=models.CASCADE,
+                                    related_name='task_assignee', null=True)
     created_date = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False)
 

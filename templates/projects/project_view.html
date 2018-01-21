@@ -17,7 +17,7 @@
       <div class="row">
         <div class="col-md-3">
           <div class="jumbotron">
-            <h3>{{feature.title}}</h3>
+            <a href="{% url 'projects:feature_veiw' pk=feature.pk %}"><h3>{{feature.title}}</h3></a> 
             <p>{{feature.details|truncatechars:50}}</p>
             <small>Creator: {{feature.owner}}</small>
             {% if not feature.assigned_to == None %}
