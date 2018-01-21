@@ -18,8 +18,11 @@
         <div class="col-md-3">
           <div class="jumbotron">
             <h3>{{feature.title}}</h3>
-            <p>{{feature.details}}</p>
-            <small>{{feature.assigned_to}}</small>
+            <p>{{feature.details|truncatechars:50}}</p>
+            <small>Creator: {{feature.owner}}</small>
+            {% if not feature.assigned_to == None %}
+              <small>Assigned To: {{feature.assigned_to}}</small>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -45,7 +48,9 @@
             <select class="form-control" name="assigned_to">
               <option>{{project.owner.first_name}} {{project.owner.last_name}} (Project Owner)</option>
               {% for employee in employees %}
-                <option value="{{employee}}">{{employee}}</option>
+              <!-- Set the value to employee.id so the HTTP POST Request knows
+                   which Employee object to assign to the value -->
+                <option value="{{employee.id}}">{{employee}}</option>
               {% endfor %}
             </select>
             <div class="modal-footer">
