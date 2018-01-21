@@ -1,9 +1,61 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<div class="container">
   <div class="container-fluid">
-    <a class="btn btn-primary" href="{% url 'projects:add_feature' pk=project.pk %}"> New Feature</a>
+    <button type="button" class="btn btn-primary comment-btn" data-toggle="modal" data-target="#newFeatureModal">
+      Add New Feature
+    </button>
+    <a class="btn btn-danger" href="{% url 'projects:delete_project' pk=project.pk %}">Delete Project</a>
     <h1>{{project.title}}</h1>
     <h4>{{project.owner.first_name}}</h4>
+    <h3>Deadline: {{project.deadline}}</h3>
+  </div>
+
+  {% for feature in features %}
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="jumbotron">
+            <h3>{{feature.title}}</h3>
+            <p>{{feature.details}}</p>
+            <small>{{feature.assigned_to}}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+
+
+  <div class="modal fade" id="newFeatureModal" tabindex="-1" role="dialog" aria-labelledby="newFeatureModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="newFeatureModalLabel">Feature Details</h4>
+        </div>
+        <div class="modal-body">
+          <form class="" name="new_feature_form" action="{% url 'projects:add_feature' pk=project.pk %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="title" class="form-control login-field" value="{{title}}" placeholder="Feature Title"><br>
+            <textarea name="details" class="form-control" rows="8" cols="80" placeholder="Enter the Details of this Feature"></textarea><br>
+            <input type="text" name="estimated_completion_time" class="form-control login-field" value="{{estimated_completion_time}}" placeholder="Estimated Completion Time"><br>
+            <select class="form-control" name="assigned_to">
+              <option>{{project.owner.first_name}} {{project.owner.last_name}} (Project Owner)</option>
+              {% for employee in employees %}
+                <option value="{{employee}}">{{employee}}</option>
+              {% endfor %}
+            </select>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Add Feature</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
   </div>
 {% endblock %}

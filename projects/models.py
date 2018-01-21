@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.conf import settings
 from accounts.models import User, Employee
 
@@ -10,7 +11,10 @@ class Project(models.Model):
     estimated_cost = models.CharField(max_length=200)
     hourly_rate = models.CharField(max_length=200)
     created_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField(default=timezone.now)
+    deadline = models.DateTimeField(default=timezone.now)
     complete = models.BooleanField(default=False)
+
     # TODO: Create status on all classes ('open', 'in-work', 'complete')
 
     def __str__(self):
@@ -20,10 +24,10 @@ class Project(models.Model):
 class Feature(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE,
-                              related_name='feature_owner')
+                              related_name='feature_owner', default=1)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     assigned_to = models.ForeignKey(Employee, on_delete=models.CASCADE,
-                                    related_name='feature_assignee')
+                                    related_name='feature_assignee', null=True)
     title = models.CharField(max_length=200)
     details = models.CharField(max_length=2000)
     estimated_completion_time = models.CharField(max_length=200)

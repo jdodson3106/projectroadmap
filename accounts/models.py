@@ -48,7 +48,7 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
 
     username = None
-    company_name = models.CharField(max_length=200, default='Company Name')     
+    company_name = models.CharField(max_length=200, default='Company Name')
     email = models.EmailField(_('email address'), unique=True)
     employee_number = models.CharField(max_length=200, unique=True)
     first_name = models.CharField(max_length=200)
@@ -68,9 +68,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     def __str__(self):
-        return "{} {} - Employee #: {}".format(self.first_name,
-                                               self.last_name,
-                                               self.employee_number)
+        return "{} {}".format(self.first_name, self.last_name)
 
 class Employee(User):
     boss = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,

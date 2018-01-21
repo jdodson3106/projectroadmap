@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
+from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import login as login_form
 from django.views.generic import (CreateView, ListView, TemplateView,
@@ -17,7 +18,7 @@ class CreateProject(CreateView):
     template_name = 'projects/create_project.html'
 
     def get_success_url(self):
-        return reverse_lazy('accounts:my_profile')
+        return reverse_lazy('projects:project_view', kwargs={'pk' : self.object.pk})
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -28,18 +29,37 @@ class ProjectDetail(DetailView):
     model = Project
     template_name = 'projects/project_view.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetail, self).get_context_data(**kwargs)
+        new_feature_form = FeatureCreationForm()
+        context['new_feature_form'] = new_feature_form
+        features = Feature.objects.filter(project=self.get_object())
+        context['features'] = features
+        employees = Employee.objects.filter(boss=self.object.owner)
+        context['employees'] = employees
+        return context
+
+class ProjectDelete(DeleteView):
+    model = Project
+    template_name = 'projects/project_delete.html'
+    success_url = reverse_lazy('accounts:my_profile')
+
 def add_feature(request, pk):
     form = FeatureCreationForm(request.POST or None)
-    project = get_list_or_404(Project, pk=pk)
+    project = get_object_or_404(Project, pk=pk)
 
     if form.is_valid():
+        print('form is valid')
         feature = Feature()
         feature.owner = request.user
+        feature.project = project
         feature.title = form.cleaned_data.get('title')
         feature.details = form.cleaned_data.get('details')
         feature.estimated_completion_time = form.cleaned_data.get('estimated_completion_time')
         feature.assigned_to = form.cleaned_data.get('assigned_to')
         feature.save()
-        project.features.add(feature)
         return redirect('projects:project_view', pk=pk)
-    return redirect('accounts:my_profile')
+    else:
+        print('from invalid')
+    args = {'form':form, 'project':project}
+    return redirect('accounts:admin_home', pk=project.owner.pk)
