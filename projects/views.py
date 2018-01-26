@@ -8,7 +8,7 @@ from django.views.generic import (CreateView, ListView, TemplateView,
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from accounts.models import User, Employee
 from projects.models import Project, Feature, Task
-from projects.forms import CreateProjectForm, FeatureCreationForm
+from projects.forms import CreateProjectForm, FeatureCreationForm, TaskCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
@@ -68,9 +68,20 @@ class FeatureView(DetailView):
     model = Feature
     template_name = 'projects/feature_detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(FeatureView, self).get_context_data(**kwargs)
+        new_task_form = FeatureCreationForm()
+        context['new_task_form'] = new_task_form
+        tasks = Task.objects.filter(feature=self.get_object())
+        context['tasks'] = tasks
+        employees = Employee.objects.filter(boss=self.object.project.owner)
+        context['employees'] = employees
+        return context
+
 
 # TODO: Add slug field to project to create specific call variables between
 #       feature and project calls.
+# TODO: Create Breadcrumbs to track where you are in the project
 def add_task_to_feature(request, pk):
     form = TaskCreationForm(request.POST or None)
     feature = get_object_or_404(Feature, pk=pk)
@@ -80,10 +91,14 @@ def add_task_to_feature(request, pk):
         task.feature = feature
         task.project = feature.project
         task.title = form.cleaned_data.get('title')
-        task.details = form.cleaned_data.get('detials')
+        task.details = form.cleaned_data.get('details')
         task.estimated_completion_time = form.cleaned_data.get('estimated_completion_time')
         task.assigned_to = form.cleaned_data.get('assigned_to')
         task.save()
-        return redirect('projects:feature_veiw', pk=pk)
+        return redirect('projects:feature_view', pk=pk)
     args = {'form':form, 'feature':feature}
     return redirect('accounts:admin_home', pk=feature.project)
+
+class TaskDetail(DetailView):
+    model = Task
+    template_name = 'projects/task_view.html'

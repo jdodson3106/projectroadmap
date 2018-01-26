@@ -25,3 +25,10 @@ class FeatureCreationForm(ModelForm):
     class Meta:
         model = Feature
         fields = ['title', 'details', 'estimated_completion_time', 'assigned_to' ]
+
+
+class TaskCreationForm(ModelForm):
+
+    class Meta:
+        model = Task
+        fields = ['title', 'details', 'estimated_completion_time', 'assigned_to']

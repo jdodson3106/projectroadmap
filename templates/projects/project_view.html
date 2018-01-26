@@ -2,6 +2,15 @@
 
 {% block body %}
 <div class="container">
+
+  <div class="container">
+    <ol class="breadcrumb breadcrumb-arrow">
+      <li><a onclick="loadProjectsTab()" href="{% url 'accounts:admin_home' pk=request.user.pk %}">All Projects</a></li>
+      <li class="active">{{project.title}}</li>
+    </ol>
+    <button type="button" name="button" onclick="loadProjectsTab()">click me</button>
+  </div>
+
   <div class="container-fluid">
     <button type="button" class="btn btn-primary comment-btn" data-toggle="modal" data-target="#newFeatureModal">
       Add New Feature
@@ -12,12 +21,13 @@
     <h3>Deadline: {{project.deadline}}</h3>
   </div>
 
-  {% for feature in features %}
+
     <div class="container-fluid">
       <div class="row">
+        {% for feature in features %}
         <div class="col-md-3">
           <div class="jumbotron">
-            <a href="{% url 'projects:feature_veiw' pk=feature.pk %}"><h3>{{feature.title}}</h3></a> 
+            <a href="{% url 'projects:feature_view' pk=feature.pk %}"><h3>{{feature.title}}</h3></a>
             <p>{{feature.details|truncatechars:50}}</p>
             <small>Creator: {{feature.owner}}</small>
             {% if not feature.assigned_to == None %}
@@ -25,9 +35,10 @@
             {% endif %}
           </div>
         </div>
+        {% endfor %}
       </div>
     </div>
-  {% endfor %}
+
 </div>
 
 
@@ -59,7 +70,6 @@
             </div>
           </form>
         </div>
-
       </div>
     </div>
   </div>

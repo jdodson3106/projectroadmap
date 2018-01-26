@@ -20,3 +20,11 @@ function assignColor() {
     containers[i].style.backgroundColor = colorGenerator();
   }
 }
+
+function loadProjectsTab(){
+  document.getElementById('overview').classList.remove("active");
+  document.getElementById('overview-tab').classList.remove(" ctive");
+  document.getElementById('projects').classList.add("active");
+  document.getElementById('projects-tab').classList.add("active");
+  alert("'clicked'");
+}

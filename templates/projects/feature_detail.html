@@ -1,5 +1,76 @@
 {% extends 'base.html' %}
 
+
 {% block body %}
-  <h1>{{feature.title}}</h1>
+<div class="container">
+  <div class="container">
+    <ol class="breadcrumb breadcrumb-arrow">
+      <li><a href="{% url 'projects:project_view' pk=feature.project.pk %}">{{feature.project.title}}</a></li>
+      <li class="active">{{feature.title}}</li>
+    </ol>
+  </div>
+
+  <div class="container-fluid">
+    <button type="button" class="btn btn-primary comment-btn" data-toggle="modal" data-target="#newFeatureModal">
+      Add New Feature Task
+    </button>
+    <hr>
+    <h1>{{feature.title}}</h1>
+    <h5>{{feature.assigned_to}}</h5>
+  </div>
+
+
+  <div class="container-fluid">
+    <div class="row">
+      {% for task in tasks %}
+      <div class="col-md-3">
+        <div class="jumbotron">
+          <a href="{% url 'projects:task_view' pk=task.pk %}"><h3>{{task.title}}</h3></a>
+          <p>{{task.details|truncatechars:50}}</p>
+          <small>Creator: {{task.feature.owner}}</small><br>
+          {% if not task.assigned_to == None %}
+            <small>Assigned To: {{task.assigned_to}}</small>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+
+
+
+  <div class="modal fade" id="newFeatureModal" tabindex="-1" role="dialog" aria-labelledby="newFeatureModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="newFeatureModalLabel">Add New Task To: "{{feature.title}}"</h4>
+        </div>
+        <div class="modal-body">
+          <form class="" name="new_task_form" action="{% url 'projects:add_task' pk=feature.pk %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="title" class="form-control login-field" value="{{title}}" placeholder="Task Title"><br>
+            <textarea name="details" class="form-control" rows="8" cols="80" placeholder="Enter the Details of this Task"></textarea><br>
+            <input type="text" name="estimated_completion_time" class="form-control login-field" value="{{estimated_completion_time}}" placeholder="Estimated Completion Time"><br>
+            <select class="form-control" name="assigned_to">
+              <option>{{feature.project.owner.first_name}} {{feature.project.owner.last_name}} (Project Owner)</option>
+              {% for employee in employees %}
+              <!-- Set the value to employee.id so the HTTP POST Request knows
+                   which Employee object to assign to the value -->
+                <option value="{{employee.id}}">{{employee}}</option>
+              {% endfor %}
+            </select>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Add Task</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 {% endblock %}

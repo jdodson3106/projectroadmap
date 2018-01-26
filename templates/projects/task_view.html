@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container">
+  <div class="container">
+    <ol class="breadcrumb breadcrumb-arrow">
+      <li><a href="{% url 'projects:project_view' pk=task.project.pk %}">{{task.project.title}}</a></li>
+      <li><a href="{% url 'projects:feature_view' pk=task.feature.pk %}">{{task.feature.title}}</a></li>
+      <li class="active">{{task.title}}</li>
+    </ol>
+  </div>
+
+
+  <div class="container">
+    <h1>{{task.title}}</h1>
+    <h3>{{task.details}}</h3>
+    <small>{{task.assigned_to}}</small>
+  </div>
+
+</div>
+
+
+{% endblock %}
