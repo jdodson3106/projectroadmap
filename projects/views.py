@@ -10,6 +10,7 @@ from accounts.models import User, Employee
 from projects.models import Project, Feature, Task
 from projects.forms import CreateProjectForm, FeatureCreationForm, TaskCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from contextualdata.context_manage import ContextManager
 
 # Create your views here.
 class CreateProject(CreateView):
@@ -67,6 +68,9 @@ def add_feature(request, pk):
 class FeatureView(DetailView):
     model = Feature
     template_name = 'projects/feature_detail.html'
+    # cm = ContextManager(Feature, 'FeatureView', Task, 'feature',
+    #                     self.get_object(), tasks)
+
 
     def get_context_data(self, **kwargs):
         context = super(FeatureView, self).get_context_data(**kwargs)
@@ -77,6 +81,14 @@ class FeatureView(DetailView):
         employees = Employee.objects.filter(boss=self.object.project.owner)
         context['employees'] = employees
         return context
+
+class DeleteFeature(DeleteView):
+    model = Feature
+    template_name = 'projects/delete_feature.html'
+
+    def get_success_url(self):
+        project = self.object.project
+        return reverse_lazy('projects:project_view', kwargs={'pk': project.pk})
 
 
 # TODO: Add slug field to project to create specific call variables between
@@ -102,3 +114,11 @@ def add_task_to_feature(request, pk):
 class TaskDetail(DetailView):
     model = Task
     template_name = 'projects/task_view.html'
+
+class DeleteTask(DeleteView):
+    model = Task
+    template_name = 'projects/delete_task.html'
+
+    def get_success_url(self):
+        feature = self.object.feature
+        return reverse_lazy( 'projects:feature_view', kwargs={'pk': feature.pk})

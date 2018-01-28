@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container">
+
+  <div class="col-md-6 col-md-offset-3" align='center'>
+    <h1>Delete Task</h1>
+
+    <h4>Are you sure you want to delete <b>{{ task.title }}</b>?</h4>
+    <p>This will perminately delete the task.</p>
+
+    <form action="{% url 'projects:delete_task' pk=task.pk %}" method="POST">
+      {% csrf_token %}
+
+      <input class="btn btn-danger btn-sm" type="submit" value="Yes, delete." />
+      <a class=" btn btn-success btn-sm" href="{% url 'accounts:my_profile' %}">No, cancel.</a>
+    </form>
+  </div>
+  <div class="col-md-2">
+
+  </div>
+</div>
+
+{% endblock %}

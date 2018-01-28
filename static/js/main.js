@@ -21,6 +21,11 @@ function assignColor() {
   }
 }
 
+function onPageLoad() {
+  // Create a function to call the loadProjectsTab() function so that the
+  // function executes after a page load.
+}
+
 function loadProjectsTab(){
   document.getElementById('overview').classList.remove("active");
   document.getElementById('overview-tab').classList.remove(" ctive");

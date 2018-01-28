@@ -16,7 +16,12 @@
     </button>
     <hr>
     <h1>{{feature.title}}</h1>
+    <small>Feature Owner: {{feature.owner}}</small>
     <h5>{{feature.assigned_to}}</h5>
+
+    {% if feature.owner == request.user %}
+      <a class="btn btn-xs btn-danger" href="{% url 'projects:delete_feature' pk=feature.pk %}">Delete</a>
+    {% endif %}
   </div>
 
 

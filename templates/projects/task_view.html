@@ -15,7 +15,11 @@
   <div class="container">
     <h1>{{task.title}}</h1>
     <h3>{{task.details}}</h3>
+    <small>Project Owner = {{task.project.owner}}</small><br>
     <small>{{task.assigned_to}}</small>
+    {% if request.user == task.project.owner %}
+      <a class="btn btn-xs btn-danger" href="{% url 'projects:delete_task' pk=task.pk %}">Delete</a>
+    {% endif %}
   </div>
 
 </div>
