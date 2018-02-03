@@ -27,11 +27,11 @@
               <!-- <label class="login-label">{{form.first_name.label}}</label> -->
               <input type="text" name="title" class="form-control login-field" value="{{title}}" placeholder="{{form.title.label}}"><br>
 
-              <!-- <label class="login-label">{{form.last_name.label}}</label> -->
-              <input type="text" name="estimated_completion_time" class="form-control login-field" value="{{estimated_completion_time}}" placeholder="{{form.estimated_completion_time.label}}"><br>
+              <label class="login-label">{{form.start_date.label}}</label>
+              <input type="date" name="start_date" class="form-control login-field" value="start_date" placeholder=""><br>
 
-              <!-- <label class="login-label">{{form.email.label}}</label> -->
-              <input type="number" name="estimated_cost" class="form-control login-field" value="{{estim}}" placeholder="{{form.estimated_cost.label}} (Dollars)"><br>
+              <label class="login-label">{{form.deadline.label}}</label>
+              <input type="date" name="deadline" class="form-control login-field" value="{{deadline}}" placeholder="{{form.deadline.label}} (Dollars)"><br>
 
               <input type="number" name="hourly_rate" class="form-control login-field" value="{{hourly_rate}}" placeholder="{{form.hourly_rate.label}} (Dollars)"><br>
 
@@ -46,4 +46,6 @@
 
   </div> <!-- end of row div -->
 </div> <!-- end of base container div -->
+
+
 {% endblock %}

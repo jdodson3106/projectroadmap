@@ -29,7 +29,7 @@ class CreateUserView(CreateView):
     template_name = 'accounts/register.html'
 
     def get_success_url(self):
-        user = authenticate(employee_number=self.request.POST['employee_number'],
+        user = authenticate(email=self.request.POST['email'],
                             password=self.request.POST['password1'])
         if user.is_active:
             login(self.request, user)

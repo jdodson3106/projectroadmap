@@ -5,8 +5,13 @@
     <meta charset="utf-8">
     <title>Hello</title>
       <!-- Latest compiled and minified CSS -->
+
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+      <link rel='stylesheet' href="{% static 'css/fullcalendar.css' %}"/>
+      <script src="{% static 'js/lib/jquery.min.js' %}"></script>
+      <script src="{% static 'js/lib/moment.min.js' %}"></script>
+      <script src="{% static 'js/fullcalendar.js' %}"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
       <link href="https://fonts.googleapis.com/css?family=Abel|Josefin+Slab|Poiret+One|Gochi+Hand" rel="stylesheet">
       <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -14,6 +19,7 @@
       {% block head %}
 
       {% endblock %}
+
   </head>
 
   <body onload="startTime()">
@@ -32,7 +38,7 @@
       {% elif request.user.boss.admin %}
         <a class="navbar-brand" href="#">{{user.boss.company_name.capitalize}}</a>
       {% else %}
-        <a class="navbar-brand" href="#">Organization Name</a>
+        <a class="navbar-brand" href="{% url 'index' %}">Project Road Map Tool</a>
       {% endif %}
     </div>
 
@@ -68,6 +74,7 @@
           <li><a href="{% url 'accounts:logout' %}">Logout</a> </li>
         {% else %}
           <li><a href="{% url 'accounts:login' %}">Login</a> </li>
+          <li><a href="{% url 'accounts:register' %}">Sign Up</a> </li>
         {% endif %}
         <li><div id="">
         </div> </li>

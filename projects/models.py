@@ -1,7 +1,10 @@
 from django.db import models
+from datetime import date
+import calendar
 from django.utils import timezone
 from django.conf import settings
 from accounts.models import User, Employee
+from projectcalendar import projectcalendar
 
 # Create your models here.
 class Project(models.Model):
@@ -19,6 +22,21 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_past_due(self):
+        return date.today() > self.deadline.date()
+
+    @property
+    def get_total_days(self):
+        total_days = self.deadline.date() - self.start_date.date()
+        return total_days.days
+
+
+    def create_calendar(self):
+        calendar = projectcalendar.ProjectCalendar(self.start_date.date(), self.deadline.date())
+        calendar.create_calendar_dict()
+        return calendar.create_calendar()
 
 
 class Feature(models.Model):

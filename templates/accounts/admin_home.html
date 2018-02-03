@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
 
 {% block body %}
+
   <div class="sidebar-container">
     <div class="container-fluid">
-      <br><br>
+      <br>
     </div>
     <ul class="nav navbar-nav nav-tabs sidebar-nav">
       <li id="overview-tab" class="overview active">
         <a data-toggle="tab"  href="#overview">
           <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-12" align=center>
               <img class='menu-icons' src="/static/images/dashboard.png" alt="guage">
-            </div>
-            <div class="col-sm-9">
-              Overview
             </div>
           </div>
         </a>
@@ -21,11 +19,8 @@
       <li id="employee-tab"  class="employee-details">
         <a data-toggle="tab"  href="#employee-details">
           <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-12" align=center>
                 <img class='menu-icons' src="/static/images/users.png" alt="guage">
-            </div>
-            <div class="col-sm-9">
-              Employee Details
             </div>
           </div>
         </a>
@@ -33,16 +28,12 @@
       <li id="projects-tab"  class="projects">
         <a data-toggle="tab"  href="#projects">
           <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-12" align=center>
               <img class='menu-icons' src="/static/images/plane.png" alt="guage">
-            </div>
-            <div class="col-sm-9">
-              Projects
             </div>
           </div>
         </a>
       </li>
-      <li><a data-toggle="tab"  href="#">Stuff</a></li>
     </ul>
   </div>
 
@@ -60,13 +51,24 @@
         </div>
         <hr>
       </div>
+      <div class="container">
+        
+      </div>
     </div>
 
     <div id="employee-details" class="tab-pane fade in main-body">
+      <div class="jumbotron custom-jumbotron">
+        <div class="row">
+          <div class="col-md-5 col-md-offset-1">
+            <h2>Employee Details</h2>
+          </div>
+        </div>
+        <hr>
+      </div>
       <div class="container-fluid">
         {% for employee in employees %}
-          <h1>{{employee.first_name}} {{employee.last_name}}</h1>
-          <h1>admin permissions? {{employee.admin}}</h1>
+          <h3>{{employee.first_name}} {{employee.last_name}}</h3>
+          <h3>admin permissions? <small>{{employee.admin}}</small> </h3>
           <hr>
         {% endfor %}
       </div>

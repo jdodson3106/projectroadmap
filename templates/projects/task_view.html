@@ -3,8 +3,9 @@
 {% block body %}
 
 <div class="container">
-  <div class="container">
+  <div class="container breadcrumb-container">
     <ol class="breadcrumb breadcrumb-arrow">
+      <li><a onclick="loadProjectsTab()" href="{% url 'accounts:admin_home' pk=request.user.pk %}">All Projects</a></li>
       <li><a href="{% url 'projects:project_view' pk=task.project.pk %}">{{task.project.title}}</a></li>
       <li><a href="{% url 'projects:feature_view' pk=task.feature.pk %}">{{task.feature.title}}</a></li>
       <li class="active">{{task.title}}</li>

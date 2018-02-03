@@ -1,15 +1,44 @@
 {% extends 'base.html' %}
 
+{% load static %}
+{% block head %}
+<script type="text/javascript">
+  $(document).ready(function() {
+      // page is ready, now initialize the calendar
+    $("#calendar").fullCalendar({
+      selectable: true,
+      select: function(){
+
+      },
+      dayClick: function(){
+        $("#newFeatureModal").modal("show");
+      },
+      events: [
+        {
+          title : "{{project.title}}",
+          start : "{{project.start_date|date:"Y-m-d"}}",
+          end : "{{project.deadline|date:"Y-m-d"}}"
+        },
+      ]
+        // put options and callbacks here
+    });
+  });
+</script>
+{% endblock %}
 {% block body %}
 <div class="container">
 
-  <div class="container">
+  <div class="container breadcrumb-container">
     <ol class="breadcrumb breadcrumb-arrow">
       <li><a onclick="loadProjectsTab()" href="{% url 'accounts:admin_home' pk=request.user.pk %}">All Projects</a></li>
       <li class="active">{{project.title}}</li>
     </ol>
   </div>
-
+  {% if project.is_past_due %}
+    <div class="alert alert-danger">
+      <h2>{{project.title}} is past the deadline!!</h2>
+    </div>
+  {% endif %}
   <div class="container-fluid">
     <button type="button" class="btn btn-primary comment-btn" data-toggle="modal" data-target="#newFeatureModal">
       Add New Feature
@@ -17,14 +46,20 @@
     <a class="btn btn-danger" href="{% url 'projects:delete_project' pk=project.pk %}">Delete Project</a>
     <h1>{{project.title}}</h1>
     <h4>Project Owner: {{project.owner.first_name}} {{project.owner.last_name}}</h4>
-    <h3>Deadline: {{project.deadline}}</h3>
+    <h3>Start Date: {{project.start_date|date}} >> Deadline: {{project.deadline|timeuntil}}</h3>
+    <h4>Total Days: {{project.get_total_days}}</h4>
   </div>
 
+  <div class="container calendar-container">
+    <div id="calendar">
+
+    </div>
+  </div>
 
     <div class="container-fluid">
       <div class="row">
         {% for feature in features %}
-        <div class="col-md-3">
+        <div class="col-md-4">
           <div class="jumbotron">
             <a href="{% url 'projects:feature_view' pk=feature.pk %}"><h3>{{feature.title}}</h3></a>
             <p>{{feature.details|truncatechars:50}}</p>
@@ -47,7 +82,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="newFeatureModalLabel">Feature Details</h4>
+          <h4 class="modal-title" id="newFeatureModalLabel">Create New Feature Item</h4>
         </div>
         <div class="modal-body">
           <form class="" name="new_feature_form" action="{% url 'projects:add_feature' pk=project.pk %}" method="post">
@@ -55,6 +90,7 @@
             <input type="text" name="title" class="form-control login-field" value="{{title}}" placeholder="Feature Title"><br>
             <textarea name="details" class="form-control" rows="8" cols="80" placeholder="Enter the Details of this Feature"></textarea><br>
             <input type="text" name="estimated_completion_time" class="form-control login-field" value="{{estimated_completion_time}}" placeholder="Estimated Completion Time"><br>
+            <label for="">Feature Lead:</label>
             <select class="form-control" name="assigned_to">
               <option>{{project.owner.first_name}} {{project.owner.last_name}} (Project Owner)</option>
               {% for employee in employees %}
@@ -72,4 +108,17 @@
       </div>
     </div>
   </div>
+
+  <script type="text/javascript">
+
+    // $(function() {
+    //   if ($('tr').children('td').hasClass("sat") || $("td").hasClass("sun")) {
+    //     var noDaysCount = $('tr').children('.noday').length;
+    //     $(".sat").addClass('weekend');
+    //     $(".sun").addClass('weekend');
+    //     console.log(noDaysCount);
+    //   }
+    //   $("table").addClass('table');
+    // });
+  </script>
 {% endblock %}

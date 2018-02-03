@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
+from django.utils.safestring import mark_safe
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import login as login_form
@@ -12,7 +13,7 @@ from projects.forms import CreateProjectForm, FeatureCreationForm, TaskCreationF
 from django.contrib.auth.mixins import LoginRequiredMixin
 from contextualdata.context_manage import ContextManager
 
-# Create your views here.
+
 class CreateProject(CreateView):
     models = Project
     form_class = CreateProjectForm
@@ -38,6 +39,9 @@ class ProjectDetail(DetailView):
         context['features'] = features
         employees = Employee.objects.filter(boss=self.object.owner)
         context['employees'] = employees
+        calendar = self.object.create_calendar()
+        context['test_cal'] = calendar
+        context['calendar'] = mark_safe(calendar)
         return context
 
 class ProjectDelete(DeleteView):
@@ -68,9 +72,6 @@ def add_feature(request, pk):
 class FeatureView(DetailView):
     model = Feature
     template_name = 'projects/feature_detail.html'
-    # cm = ContextManager(Feature, 'FeatureView', Task, 'feature',
-    #                     self.get_object(), tasks)
-
 
     def get_context_data(self, **kwargs):
         context = super(FeatureView, self).get_context_data(**kwargs)

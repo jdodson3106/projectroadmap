@@ -50,7 +50,7 @@ class User(AbstractUser):
     username = None
     company_name = models.CharField(max_length=200, default='Company Name')
     email = models.EmailField(_('email address'), unique=True)
-    employee_number = models.CharField(max_length=200, unique=True)
+    employee_number = models.CharField(max_length=200, default='', null=True, blank=True)
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     admin = models.BooleanField(default=True)
@@ -62,7 +62,7 @@ class User(AbstractUser):
 
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['employee_number', 'admin', 'employee_phone',
+    REQUIRED_FIELDS = ['admin', 'employee_phone',
                        'birth_date', 'profile_image']
 
     objects = UserManager()

@@ -7,14 +7,14 @@ class CreateProjectForm(ModelForm):
 
     class Meta:
         model = Project
-        fields = ['title','estimated_completion_time',
-                  'estimated_cost', 'hourly_rate']
+        fields = ['title','start_date',
+                  'deadline', 'hourly_rate']
 
     def save(self):
         project = super(CreateProjectForm, self).save(commit=False)
         project.title = self.cleaned_data['title']
-        project.estimated_completion_time = self.cleaned_data['estimated_completion_time']
-        project.estimated_cost = self.cleaned_data['estimated_cost']
+        project.start_date = self.cleaned_data['start_date']
+        project.deadline = self.cleaned_data['deadline']
         project.hourly_rate = self.cleaned_data['hourly_rate']
 
         project.save()
@@ -24,7 +24,7 @@ class FeatureCreationForm(ModelForm):
 
     class Meta:
         model = Feature
-        fields = ['title', 'details', 'estimated_completion_time', 'assigned_to' ]
+        fields = ['title', 'details', 'estimated_completion_time', 'assigned_to']
 
 
 class TaskCreationForm(ModelForm):

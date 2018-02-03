@@ -12,7 +12,7 @@ class UserAdmin(DjangoUserAdmin):
     """Define admin model for custom User model with no username field."""
 
     fieldsets = (
-        (None, {'fields': ('company_name','employee_number','email', 'password')}),
+        (None, {'fields': ('company_name', 'email', 'password')}),
         (_('Personal info'), {'fields': ('first_name','last_name',
                                          'employee_phone', 'birth_date', 'profile_image')}),
         (_('Permissions'), {'fields': ('is_active', 'admin', 'is_staff', 'is_superuser',
@@ -22,13 +22,13 @@ class UserAdmin(DjangoUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('company_name','employee_number', 'email', 'password1', 'password2'),
+            'fields': ('company_name', 'email', 'password1', 'password2'),
         }),
     )
-    list_display = ('employee_number','email',
+    list_display = ('email',
                     'first_name', 'last_name',
                     'admin','is_staff')
-    search_fields = ('employee_number','email', 'first_name', 'last_name')
+    search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
 
 # register the profiles so I can view them in the admin page

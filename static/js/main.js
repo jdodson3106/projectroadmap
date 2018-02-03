@@ -31,5 +31,5 @@ function loadProjectsTab(){
   document.getElementById('overview-tab').classList.remove(" ctive");
   document.getElementById('projects').classList.add("active");
   document.getElementById('projects-tab').classList.add("active");
-  alert("'clicked'");
+  // alert("'clicked'");
 }
