@@ -3,23 +3,67 @@
 {% load static %}
 {% block head %}
 <script type="text/javascript">
-  $(document).ready(function() {
-      // page is ready, now initialize the calendar
+  $(document).ready(function(){
     $("#calendar").fullCalendar({
-      selectable: true,
-      select: function(){
-
+      themeSystem: 'bootstrap3',
+      themeName: 'Darkly',
+      header: {
+        left: 'prev, next, today',
+        center: 'title',
+        right: 'month, agendaWeek, agendaDay'
       },
+
+      editable: true,
+      eventLimit: true,
+      selectable: true,
+      selectHelper: true,
+
       dayClick: function(){
         $("#newFeatureModal").modal("show");
       },
+
+      eventOrder: ["complete", "start", "end"],
+
       events: [
         {
           title : "{{project.title}}",
           start : "{{project.start_date|date:"Y-m-d"}}",
-          end : "{{project.deadline|date:"Y-m-d"}}"
+          end : "{{project.deadline|date:"Y-m-d"}}",
+          description: ""
         },
-      ]
+          {% for feature in features %}
+        {
+            title: "'{{feature.title}}'",
+            start: "{{feature.start_date|date:"Y-m-d"}}",
+            end: "{{feature.deadline|date:"Y-m-d"}}",
+            deadline: "{{feature.details}}",
+            url: "{% url 'projects:feature_view' pk=feature.pk %}",
+            complete: "{{feature.complete}}",
+            color: "{{feature.color}}",
+
+        },
+          {% endfor %}
+      ],
+
+      eventRender: function(event, element) {
+        var bool_val = "True"
+        if (event.complete == bool_val) {
+          // $(element).find('.fc-title').css("text-decoration", "line-through");
+          $(element).find('.fc-title').append(" : Complete <small></small>");
+          $(element).find('.fc-title').prepend(" ");
+          $(element).find('small').addClass(" glyphicon glyphicon-check fc-font");
+        } else {
+          $(element).find('.fc-title').append(" : Pending <small></small>");
+          $(element).find('.fc-title').prepend(" ");
+          $(element).find('small').addClass(" glyphicon glyphicon-time");
+        }
+        },
+
+      select: function(start, end) {
+        $("#newFeatureModal").modal("show");
+        $("#feature_start_date").val(moment(start).format("MM/DD/YYYY"));
+        $("#feature_deadline").val(moment(end).format("MM/DD/YYYY"));
+      }
         // put options and callbacks here
     });
   });
@@ -46,8 +90,8 @@
     <a class="btn btn-danger" href="{% url 'projects:delete_project' pk=project.pk %}">Delete Project</a>
     <h1>{{project.title}}</h1>
     <h4>Project Owner: {{project.owner.first_name}} {{project.owner.last_name}}</h4>
-    <h3>Start Date: {{project.start_date|date}} >> Deadline: {{project.deadline|timeuntil}}</h3>
-    <h4>Total Days: {{project.get_total_days}}</h4>
+    <h3>Start Date: {{project.start_date|date}} | Deadline: {{project.deadline|date}}</h3>
+    <h4>Total Days: {{project.get_total_days}} | Due in:  {{project.deadline|timeuntil}}</h4>
   </div>
 
   <div class="container calendar-container">
@@ -56,22 +100,7 @@
     </div>
   </div>
 
-    <div class="container-fluid">
-      <div class="row">
-        {% for feature in features %}
-        <div class="col-md-4">
-          <div class="jumbotron">
-            <a href="{% url 'projects:feature_view' pk=feature.pk %}"><h3>{{feature.title}}</h3></a>
-            <p>{{feature.details|truncatechars:50}}</p>
-            <small>Creator: {{feature.owner}}</small>
-            {% if not feature.assigned_to == None %}
-              <small>Assigned To: {{feature.assigned_to}}</small>
-            {% endif %}
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
+
 
 </div>
 
@@ -89,15 +118,26 @@
             {% csrf_token %}
             <input type="text" name="title" class="form-control login-field" value="{{title}}" placeholder="Feature Title"><br>
             <textarea name="details" class="form-control" rows="8" cols="80" placeholder="Enter the Details of this Feature"></textarea><br>
-            <input type="text" name="estimated_completion_time" class="form-control login-field" value="{{estimated_completion_time}}" placeholder="Estimated Completion Time"><br>
+            <label for="">Start Date</label>
+            <input id="feature_start_date" type="text" name="start_date" class="form-control login-field" value="{{start_date}}" placeholder="Start Date"><br>
+            <label for="">Deadline Date</label>
+            <input id="feature_deadline" type="text" name="deadline" class="form-control login-field" value="{{deadline}}" placeholder="Deadline Date"><br>
             <label for="">Feature Lead:</label>
             <select class="form-control" name="assigned_to">
-              <option>{{project.owner.first_name}} {{project.owner.last_name}} (Project Owner)</option>
+              <option value="{{project.owner.id}}">{{project.owner.first_name}} {{project.owner.last_name}} (Project Owner)</option>
               {% for employee in employees %}
               <!-- Set the value to employee.id so the HTTP POST Request knows
                    which Employee object to assign to the value -->
                 <option value="{{employee.id}}">{{employee}}</option>
               {% endfor %}
+            </select><br>
+            <label for="">Calendar Marker Color:</label>
+            <select class="form-control" name="color">
+              <option value="#D72638">Red</option>
+              <option value="#5BC0BE">Teal</option>
+              <option value="#228CDB">Blue</option>
+              <option value="#7D70BA">Purple</option>
+              <option value="#3C887E">Green</option>
             </select>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>

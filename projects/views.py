@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
+from django.http import JsonResponse
 from django.utils.safestring import mark_safe
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth import login, authenticate
@@ -60,8 +61,10 @@ def add_feature(request, pk):
         feature.project = project
         feature.title = form.cleaned_data.get('title')
         feature.details = form.cleaned_data.get('details')
-        feature.estimated_completion_time = form.cleaned_data.get('estimated_completion_time')
+        feature.start_date = form.cleaned_data.get('start_date')
+        feature.deadline = form.cleaned_data.get('deadline')
         feature.assigned_to = form.cleaned_data.get('assigned_to')
+        feature.color = form.cleaned_data.get('color')
         feature.save()
         return redirect('projects:project_view', pk=pk)
     else:
@@ -91,6 +94,11 @@ class DeleteFeature(DeleteView):
         project = self.object.project
         return reverse_lazy('projects:project_view', kwargs={'pk': project.pk})
 
+def mark_feature_complete(request, pk):
+    feature = get_object_or_404(Feature, pk=pk)
+    feature.complete = True
+    feature.save()
+    return redirect('projects:feature_view', pk=pk)
 
 # TODO: Add slug field to project to create specific call variables between
 #       feature and project calls.
@@ -123,3 +131,11 @@ class DeleteTask(DeleteView):
     def get_success_url(self):
         feature = self.object.feature
         return reverse_lazy( 'projects:feature_view', kwargs={'pk': feature.pk})
+
+
+def get_feature_object(request):
+    feature = get_object_or_404(Feature, pk=pk)
+    data = {
+        "pk": feature.pk
+    }
+    return JsonResponse(data)
