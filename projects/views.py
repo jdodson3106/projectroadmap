@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, reverse
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth import login, authenticate
@@ -32,18 +33,30 @@ class ProjectDetail(DetailView):
     model = Project
     template_name = 'projects/project_view.html'
 
+    def calculate_completion_percent(self, arg):
+        completed = Feature.objects.filter(complete=True, project=arg).count()
+        total_features = Feature.objects.filter(project=arg).count()
+        percentage = (completed * 100) / total_features
+        print(percentage)
+        return percentage
+
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
+        project = self.object
         new_feature_form = FeatureCreationForm()
         context['new_feature_form'] = new_feature_form
         features = Feature.objects.filter(project=self.get_object())
         context['features'] = features
         employees = Employee.objects.filter(boss=self.object.owner)
         context['employees'] = employees
-        calendar = self.object.create_calendar()
+        percentage = self.calculate_completion_percent(project)
+        context['percentage'] = percentage
+        calendar = self.object.create_calendar
         context['test_cal'] = calendar
         context['calendar'] = mark_safe(calendar)
         return context
+
+
 
 class ProjectDelete(DeleteView):
     model = Project
@@ -71,6 +84,24 @@ def add_feature(request, pk):
         print('from invalid')
     args = {'form':form, 'project':project}
     return redirect('accounts:admin_home', pk=project.owner.pk)
+
+
+def update_feature(request, pk):
+    data = dict()
+    feature = get_object_or_404(Feature, pk=pk)
+    form = FeatureCreationForm(request.POST, instance=feature)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            data['form_is_valid'] = True
+        else:
+            form = FeatureCreationForm(instance=feature)
+            data['form_is_valid'] = False
+    template_name = 'projects/partial_edit_feature.html'
+    context = {'form': form}
+    data['html_form'] = render_to_string(template_name, context, request=request)
+    data['working'] = True
+    return JsonResponse(data)
 
 class FeatureView(DetailView):
     model = Feature

@@ -151,3 +151,21 @@
   background-color: #8e8e8e;
   color: white;
 }
+
+.progress{
+  height: 30px;
+  background-color: #555555 !important;
+  font-size: 1.3em;
+  color: white;
+  border-radius: 2px;
+}
+
+.progress-bar{
+  background-color: #00D5B2;
+  font-size: 1.3em;
+}
+
+.percentage-label {
+  position: relative;
+  top: 3px;
+}

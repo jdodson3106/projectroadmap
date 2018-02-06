@@ -12,6 +12,7 @@ urlpatterns = [
     path('project/<int:pk>/add-feature', views.add_feature, name='add_feature'),
     path('<int:pk>/delete/', ProjectDelete.as_view(), name='delete_project'),
     path('feature/<int:pk>', FeatureView.as_view(), name='feature_view'), # TODO: Add slug to project model
+    path('feature/<int:pk>/edit', views.update_feature, name='update_feature'),
     path('feature/<int:pk>/delete', DeleteFeature.as_view(), name='delete_feature'),
     path('feature/<int:pk>/marked_complete', views.mark_feature_complete, name='marked_complete'),
     path('task/<int:pk>/add-task', views.add_task_to_feature, name='add_task'),
