@@ -64,6 +64,7 @@ class ProjectDelete(DeleteView):
     success_url = reverse_lazy('accounts:my_profile')
 
 def add_feature(request, pk):
+    print(pk)
     form = FeatureCreationForm(request.POST or None)
     project = get_object_or_404(Project, pk=pk)
 
@@ -81,6 +82,8 @@ def add_feature(request, pk):
         feature.save()
         return redirect('projects:project_view', pk=pk)
     else:
+        for error in form.errors:
+            print(error)
         print('from invalid')
     args = {'form':form, 'project':project}
     return redirect('accounts:admin_home', pk=project.owner.pk)
