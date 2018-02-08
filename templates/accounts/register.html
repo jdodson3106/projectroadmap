@@ -9,9 +9,9 @@
         <div class="row form-box">
           <div class="login-box">
             {% if form.errors %}
-              {% for error in form.errors%}
+              {% for key,value in form.errors.items %}
               <div class="alert alert-danger">
-                <strong>{{ error|striptags }}</strong>
+                <strong>{{key|escape}}{{value}}</strong>
               </div>
               {% endfor %}
               {% for error in form.non_field_errors %}

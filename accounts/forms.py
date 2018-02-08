@@ -10,6 +10,31 @@ class RegistrationForm(UserCreationForm):
                   'last_name', 'employee_phone', 'birth_date',
                   'admin', 'password1', 'password2')
 
+        error_messages = {
+            'first_name': {
+                'max_length': ("The first name has too many characters. (200 max)"),
+                'required': ("First name must be provided"),
+            },
+            'last_name': {
+                'max_length': ("The last name has too many characters. (200 max)"),
+                'required': ("Last name must be provided"),
+            },
+            'company_name': {
+                'max_length': ("The company name has too many characters. (200 max)"),
+            },
+            'email':{
+                'unique': ("The email address provided is already taken"),
+                'required': ("Please enter an email address"),
+            },
+            'password1': {
+                'required': ("A password must be provided"),
+            },
+            'password2': {
+                'required': ("A password confirmation must be provided")
+            }
+
+        }
+
     def save(self, commit=True):
         user = super(RegistrationForm, self).save(commit=False)
         user.first_name = self.cleaned_data['first_name']

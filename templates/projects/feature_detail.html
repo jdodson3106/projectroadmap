@@ -1,5 +1,142 @@
 {% extends 'base.html' %}
+{% block head %}
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#calendar").fullCalendar({
+      schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+      allDaySlot: false,
+      nowIndicator: true,
+      firstDay: 1,
+      defaultView: 'agendaDay', // TODO: Create view for project
+                                // TODO: Create business hours options for projects
+      themeSystem: 'bootstrap3',
+      themeName: 'Darkly',
+      header: {
+        left: 'prev, next, today',
+        center: 'title',
+        right: 'agendaWeek, agendaDay, list'
+      },
 
+      editable: true,
+      eventLimit: true,
+      selectable: true,
+      selectHelper: true,
+
+      dayClick: function(){
+        $("#newFeatureModal").modal("show");
+      },
+
+      select: function(start, end) {
+        $("#newFeatureModal").modal("show");
+        $("#feature_start_date").val(moment(start).format("MM/DD/YYYY"));
+        $("#feature_deadline").val(moment(end).format("MM/DD/YYYY"));
+        $('#feature_start_time').val(moment(start).format("HH:mm"));
+        $('#feature_deadline_time').val(moment(end).format("HH:mm"));
+      },
+
+      events: [
+        {
+          title: '{{feature.title}}',
+          start: '{{feature.start_date|date:"Y-m-d"}}{{feature.start_date|time}}',
+          end: '{{feature.deadline|date:"Y-m-d"}}',
+          assignment: "{{feature.assigned_to.first_name}} {{feature.assigned_to.last_name}}"
+        },
+
+          {% for task in tasks %}
+          {
+            title: '{{task.title}}',
+            start: '{{task.start_date_time|date:"c"}}',
+            end: "{{task.end_date_time|date:'c'}}",
+            url: "{% url 'projects:task_view' pk=task.pk %}",
+            complete: "{{task.complete}}",
+            assignment: "{{task.assigned_to.first_name}}",
+            color: "{{task.color}}",
+            resourceId: {{task.assigned_to.id}}
+          },
+          {% endfor %}
+
+      ],
+
+      resources: [
+        // resources go here
+        {% for employee in employees %}
+          {id:{{employee.id}}, title: "{{employee.first_name}} {{employee.last_name}}"},
+        {% endfor %}
+    ],
+
+      eventRender: function(event, element) {
+        $(element).find('.fc-title').append(" : " + event.assignment)
+      },
+
+      eventDrop: function(event) {
+        $.ajax({
+          url: event.url + "/edit",
+          type: 'get',
+          dataType: 'json',
+          // beforeSend: function() {
+          //   $("#modal-edit-task").modal("show");
+          // },
+          success: function(data){
+            console.log(data.working);
+            $("#modal-edit-task .modal-content").html(data.html_form);
+            $("#modal-edit-task .modal-content #feature_start_date").val(moment(event.start).format("MM/DD/YYYY"));
+            $("#modal-edit-task .modal-content #feature_deadline").val(moment(event.end).format("MM/DD/YYYY"));
+            $('#modal-edit-task .modal-content #feature_start_time').val(moment(event.start).format("HH:mm"));
+            $('#modal-edit-task .modal-content #feature_deadline_time').val(moment(event.end).format("HH:mm"));
+            $("#task-update-form").submit()
+          }
+        })
+      },
+
+      eventResize: function(event) {
+        $.ajax({
+          url: event.url + "/edit",
+          type: 'get',
+          dataType: 'json',
+          success: function(data){
+            $("#modal-edit-task .modal-content").html(data.html_form);
+            $("#modal-edit-task .modal-content #feature_start_date").val(moment(event.start).format("MM/DD/YYYY"));
+            $("#modal-edit-task .modal-content #feature_deadline").val(moment(event.end).format("MM/DD/YYYY"));
+            $('#modal-edit-task .modal-content #feature_start_time').val(moment(event.start).format("HH:mm"));
+            $('#modal-edit-task .modal-content #feature_deadline_time').val(moment(event.end).format("HH:mm"));
+            $("#task-update-form").submit();
+          }
+        })
+      },
+
+
+    });
+
+    var saveForm = function () {
+      var form = $(this);
+      $.ajax({
+        url: form.attr("action"),
+        data: form.serialize(),
+        type: form.attr("method"),
+        dataType: 'json',
+        success: function (data) {
+          console.log(data.form_is_valid);
+          if (data.form_is_valid) {
+            $("#modal-edit-task").modal("hide");
+          }
+          else {
+            $("#modal-edit-task .modal-content").html(data.html_form);
+          }
+        }
+      });
+      return false;
+    };
+
+    // update dates submit binding
+     $("#modal-edit-task").on("submit", ".task-update-form", saveForm);
+
+
+  });
+
+
+
+</script>
+{% endblock %}
 
 {% block body %}
 <div class="container">
@@ -29,9 +166,14 @@
         <a href="{% url 'projects:marked_complete' pk=feature.pk %}">Mark as Complete</a>
       {% endif %}
     {% endif %}
+  </div><hr>
+
+  <div class="container calendar-container">
+    <div id="calendar">
+
+    </div>
   </div>
-
-
+  <hr>
   <div class="container-fluid">
     <div class="row">
       {% for task in tasks %}
@@ -64,7 +206,31 @@
             {% csrf_token %}
             <input type="text" name="title" class="form-control login-field" value="{{title}}" placeholder="Task Title"><br>
             <textarea name="details" class="form-control" rows="8" cols="80" placeholder="Enter the Details of this Task"></textarea><br>
-            <input type="text" name="estimated_completion_time" class="form-control login-field" value="{{estimated_completion_time}}" placeholder="Estimated Completion Time"><br>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label for="">Start Date</label>
+                <input id="feature_start_date" type="text" name="start_date" class="form-control login-field" value="{{start_date}}" placeholder="Start Date"><br>
+              </div>
+              <div class="col-md-6">
+                <label for="">Start Time</label>
+                <input id="feature_start_time" type="text"  class="form-control login-field" name="start_time" value="{{start_time|time}}"><br>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <label for="">Deadline Date</label>
+                <input id="feature_deadline" type="text" name="deadline" class="form-control login-field" value="{{deadline}}" placeholder="Deadline Date"><br>
+              </div>
+              <div class="col-md-6">
+                <label for="">Deadline Time</label>
+                <input id="feature_deadline_time" type="text" class="form-control login-field" name="end_time" value="{{end_time|time}}">
+              </div>
+            </div>
+
+
+          <hr>
             <select class="form-control" name="assigned_to">
               <option>{{feature.project.owner.first_name}} {{feature.project.owner.last_name}} (Project Owner)</option>
               {% for employee in employees %}
@@ -73,6 +239,14 @@
                 <option value="{{employee.id}}">{{employee}}</option>
               {% endfor %}
             </select>
+            <label for="">Calendar Tag Color</label>
+            <select class="form-control login-field" name="color">
+              <option value="#D72638">Red</option>
+              <option value="#228CDB">Blue</option>
+              <option value="#7D82B8">Purple</option>
+              <option value="#3C887E">Green</option>
+              <option value="#5BC0BE">Teal</option>
+            </select>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
               <button type="submit" class="btn btn-primary">Add Task</button>
@@ -80,6 +254,15 @@
           </form>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="modal-edit-task">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
     </div>
   </div>
 </div>

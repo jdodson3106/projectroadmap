@@ -18,4 +18,5 @@ urlpatterns = [
     path('task/<int:pk>/add-task', views.add_task_to_feature, name='add_task'),
     path('task/<int:pk>', TaskDetail.as_view(), name='task_view'),
     path('task/<int:pk>/delete', DeleteTask.as_view(), name='delete_task'),
+    path('task/<int:pk>/edit', views.update_task, name='update_task'),
 ]

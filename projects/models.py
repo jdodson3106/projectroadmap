@@ -25,6 +25,16 @@ class Project(models.Model):
         return self.title
 
     @property
+    def calculate_completion_percent(self):
+        completed = self.feature_set.filter(complete=True).count()
+        total_features = self.feature_set.count()
+        percentage = 0
+        if total_features > 0:
+            percentage = (completed * 100) / total_features
+        return percentage
+
+
+    @property
     def is_past_due(self):
         return date.today() > self.deadline.date()
 
@@ -50,7 +60,11 @@ class Feature(models.Model):
     title = models.CharField(max_length=200)
     details = models.CharField(max_length=2000)
     start_date = models.DateTimeField(default=timezone.now)
+    start_time = models.DateTimeField(null=True, blank=True)
     deadline = models.DateTimeField(default=timezone.now)
+    end_time = models.DateTimeField(null=True, blank=True)
+    start_date_time = models.DateTimeField(null=True, blank=True)
+    end_date_time = models.DateTimeField(null=True, blank=True)
     color = models.CharField(default='#191919', max_length=200)
     estimated_completion_time = models.CharField(max_length=200)
     cost = models.CharField(max_length=200)
@@ -67,9 +81,13 @@ class Task(models.Model):
     title = models.CharField(max_length=200)
     details = models.CharField(max_length=2000)
     start_date = models.DateTimeField(default=timezone.now)
+    start_time = models.TimeField(null=True, blank=True)
     deadline = models.DateTimeField(default=timezone.now)
+    end_time = models.TimeField(null=True, blank=True)
+    start_date_time = models.DateTimeField(null=True, blank=True)
+    end_date_time = models.DateTimeField(null=True, blank=True)
     color = models.CharField(default='#191919', max_length=200)
-    estimated_completion_time = models.CharField(max_length=200)
+    estimated_completion_time = models.CharField(max_length=200, null=True, blank=True)
     cost = models.CharField(max_length=200)
     assigned_to = models.ForeignKey(Employee, on_delete=models.CASCADE,
                                     related_name='task_assignee', null=True)

@@ -16,6 +16,10 @@
   <div class="container">
     <h1>{{task.title}}</h1>
     <h3>{{task.details}}</h3>
+    <h3>{{task.start_date}}</h3>
+    <h3>{{task.start_time}}</h3>
+    <h3>{{task.end_time}}</h3>
+    <h3>{{task.start_date_time}} -> {{task.end_date_time}}</h3>
     <small>Project Owner = {{task.project.owner}}</small><br>
     <small>{{task.assigned_to}}</small>
     {% if request.user == task.project.owner %}

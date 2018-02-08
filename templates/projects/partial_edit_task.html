@@ -1,0 +1,30 @@
+<form id="task-update-form" method="post" action="{% url 'projects:update_task' form.instance.pk %}" class="task-update-form">
+  {% csrf_token %}
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Update '{{form.instance.title}}' Dates</h4>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" name="title" value="{{form.instance.title}}">
+    <input type="hidden" name="details" value="{{form.instance.details}}">
+    <input type="hidden" name="assigned_to" value="{{form.instance.assigned_to.id}}">
+    <input type="hidden" name="color" value="{{form.instance.color}}">
+
+    <label for="">Start Date</label>
+    <input readonly id="feature_start_date" type="text" name="start_date" class="form-control login-field" value="{{start_date}}" placeholder="Start Date"><br>
+    <label for="">Start Time</label>
+    <input id="feature_start_time" type="text"  class="form-control login-field" name="start_time" value="{{start_time|time}}"><br>
+
+    <label for="">Deadline Date</label>
+    <input readonly id="feature_deadline" type="text" name="deadline" class="form-control login-field" value="{{deadline}}" placeholder="Deadline Date"><br>
+    <label for="">Deadline Time</label>
+    <input id="feature_deadline_time" type="text" class="form-control login-field" name="end_time" value="{{end_time|time}}">
+
+    <div class="modal-footer">
+      <button id="cancel-feature-edit" type="button" class="btn btn-default cancel-feature-edit" >Cancel</button>
+      <button type="submit" class="btn btn-primary">Confirm Updates</button>
+    </div>
+  </div>
+</form>

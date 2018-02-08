@@ -48,7 +48,7 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
 
     username = None
-    company_name = models.CharField(max_length=200, default='Company Name')
+    company_name = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(_('email address'), unique=True)
     employee_number = models.CharField(max_length=200, default='', null=True, blank=True)
     first_name = models.CharField(max_length=200)

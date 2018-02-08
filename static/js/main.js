@@ -27,6 +27,8 @@ function onPageLoad() {
 }
 
 function loadProjectsTab(){
+  
+  alert(location);
   document.getElementById('overview').classList.remove("active");
   document.getElementById('overview-tab').classList.remove(" ctive");
   document.getElementById('projects').classList.add("active");

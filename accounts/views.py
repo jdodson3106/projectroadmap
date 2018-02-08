@@ -7,7 +7,7 @@ from django.views.generic import (CreateView, ListView, TemplateView,
                                   DetailView, DeleteView, UpdateView)
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from accounts.models import User, Employee
-from projects.models import Project
+from projects.models import Project, Feature
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
@@ -37,6 +37,7 @@ class CreateUserView(CreateView):
         else:
             return reverse_lazy('accounts:register')
 
+
 class CreateEmployee(CreateView):
     model = Employee
     form_class = NewEmployeeForm
@@ -55,11 +56,12 @@ class AdminProfileView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'accounts/admin_home.html'
 
+
     def get_context_data(self, **kwargs):
         context = super(AdminProfileView, self).get_context_data(**kwargs)
         employees = Employee.objects.filter(boss=self.get_object())
         context['employees'] = employees
-        projects = Project.objects.filter(owner=self.get_object()).order_by('title')
+        projects = Project.objects.filter(owner=self.get_object()).order_by('-created_date')
         context['projects'] = projects
         return context
 

@@ -33,5 +33,5 @@ class TaskCreationForm(ModelForm):
 
     class Meta:
         model = Task
-        fields = ['title', 'details', 'start_date',
-                  'deadline', 'assigned_to', 'color']
+        fields = ['title', 'details', 'start_date', 'start_time',
+                  'deadline', 'end_time', 'assigned_to', 'color']

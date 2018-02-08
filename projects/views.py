@@ -14,6 +14,7 @@ from projects.models import Project, Feature, Task
 from projects.forms import CreateProjectForm, FeatureCreationForm, TaskCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from contextualdata.context_manage import ContextManager
+import datetime
 
 
 class CreateProject(CreateView):
@@ -33,13 +34,6 @@ class ProjectDetail(DetailView):
     model = Project
     template_name = 'projects/project_view.html'
 
-    def calculate_completion_percent(self, arg):
-        completed = Feature.objects.filter(complete=True, project=arg).count()
-        total_features = Feature.objects.filter(project=arg).count()
-        percentage = (completed * 100) / total_features
-        print(percentage)
-        return percentage
-
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
         project = self.object
@@ -49,11 +43,6 @@ class ProjectDetail(DetailView):
         context['features'] = features
         employees = Employee.objects.filter(boss=self.object.owner)
         context['employees'] = employees
-        percentage = self.calculate_completion_percent(project)
-        context['percentage'] = percentage
-        calendar = self.object.create_calendar
-        context['test_cal'] = calendar
-        context['calendar'] = mark_safe(calendar)
         return context
 
 
@@ -147,12 +136,44 @@ def add_task_to_feature(request, pk):
         task.project = feature.project
         task.title = form.cleaned_data.get('title')
         task.details = form.cleaned_data.get('details')
-        task.estimated_completion_time = form.cleaned_data.get('estimated_completion_time')
+        task.start_date = form.cleaned_data.get('start_date')
+        task.start_time = form.cleaned_data.get('start_time')
+        task.start_date_time = datetime.datetime.combine(task.start_date, task.start_time)
+        task.deadline = form.cleaned_data.get('deadline')
+        task.end_time = form.cleaned_data.get('end_time')
+        task.end_date_time = datetime.datetime.combine(task.deadline, task.end_time)
         task.assigned_to = form.cleaned_data.get('assigned_to')
+        task.color = form.cleaned_data.get('color')
         task.save()
+        print("valid")
         return redirect('projects:feature_view', pk=pk)
     args = {'form':form, 'feature':feature}
-    return redirect('accounts:admin_home', pk=feature.project)
+    for error in form.errors:
+        print(error)
+    return redirect('projects:feature_view', pk=pk)
+
+def update_task(request, pk):
+    data = dict()
+    task = get_object_or_404(Task, pk=pk)
+    form = TaskCreationForm(request.POST, instance=task)
+    if request.method == 'POST':
+        if form.is_valid():
+            task.start_date = form.cleaned_data.get('start_date')
+            task.start_time = form.cleaned_data.get('start_time')
+            task.start_date_time = datetime.datetime.combine(task.start_date, task.start_time)
+            task.deadline = form.cleaned_data.get('deadline')
+            task.end_time = form.cleaned_data.get('end_time')
+            task.end_date_time = datetime.datetime.combine(task.deadline, task.end_time)
+            form.save()
+            data['form_is_valid'] = True
+        else:
+            form = TaskCreationForm(instance=task)
+            data['form_is_valid'] = False
+    template_name = 'projects/partial_edit_task.html'
+    context = {'form': form}
+    data['html_form'] = render_to_string(template_name, context, request=request)
+    data['working'] = True
+    return JsonResponse(data)
 
 class TaskDetail(DetailView):
     model = Task
