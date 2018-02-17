@@ -2,15 +2,15 @@
 {% block head %}
 <script type="text/javascript">
   $(document).ready(function(){
+    $('[data-toggle="popover"]').popover()
     $("#calendar").fullCalendar({
       schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
       allDaySlot: false,
       nowIndicator: true,
       firstDay: 1,
-      defaultView: 'agendaDay', // TODO: Create view for project
+      defaultView: 'agendaWeek', // TODO: Create view for project
                                 // TODO: Create business hours options for projects
       themeSystem: 'bootstrap3',
-      themeName: 'Darkly',
       header: {
         left: 'prev, next, today',
         center: 'title',
@@ -38,7 +38,7 @@
         {
           title: '{{feature.title}}',
           start: '{{feature.start_date|date:"Y-m-d"}}{{feature.start_date|time}}',
-          end: '{{feature.deadline|date:"Y-m-d"}}',
+          end: '{{feature.deadline|date:"Y-m-d"}}{{feature.start_date|time}}',
           assignment: "{{feature.assigned_to.first_name}} {{feature.assigned_to.last_name}}"
         },
 
@@ -50,6 +50,7 @@
             url: "{% url 'projects:task_view' pk=task.pk %}",
             complete: "{{task.complete}}",
             assignment: "{{task.assigned_to.first_name}}",
+            comment_count: "{{task.get_comment_count}}",
             color: "{{task.color}}",
             resourceId: {{task.assigned_to.id}}
           },
@@ -65,8 +66,52 @@
     ],
 
       eventRender: function(event, element) {
-        $(element).find('.fc-title').append(" : " + event.assignment)
+        $(element).find('.fc-title').append(" : " + event.assignment);
+
       },
+
+      eventMouseover: function(event) {
+        // TODO: Create tooltip to show current task data
+        // $('#task-overview').modal('show');
+        // parse time using 24-hour clock and use UTC to prevent DST issues
+        var start = moment.utc(event.start, "HH:mm");
+        var end = moment.utc(event.end, "HH:mm");
+
+        // account for crossing over to midnight the next day
+        if (end.isBefore(start)) end.add(1, 'day');
+
+        // calculate the duration
+        var d = moment.duration(end.diff(start));
+
+        // format a string result
+        var hour = moment.utc(+d).format('H');
+        var minute = moment.utc(+d).format('mm')
+
+        var tooltip = '<div class="tooltipevent">' + 'Estimated completion:<br>' +
+                      hour + ' hours & ' + minute + ' mins<hr>' +
+                      event.comment_count + " notes " + '</div>';
+
+        var $tooltip = $(tooltip).appendTo('body');
+        var tooltipsOn = $('#tooltipsOn').prop('checked')
+        if(tooltipsOn){
+          $(this).mouseover(function(e) {
+              $(this).css('z-index', 10000);
+              $tooltip.fadeIn('1000');
+              $tooltip.fadeTo('10', 1.9);
+          }).mousemove(function(e) {
+              $tooltip.css('top', e.pageY + 5);
+              $tooltip.css('left', e.pageX + 10);
+          });
+        }
+
+      },
+
+      eventMouseout(event) {
+        // TODO: Create event to close tooltip when mouse out occurrs
+        $(this).css('z-index', 8);
+        $('.tooltipevent').remove();
+      },
+
 
       eventDrop: function(event) {
         $.ajax({
@@ -152,12 +197,17 @@
     <button type="button" class="btn btn-primary comment-btn" data-toggle="modal" data-target="#newFeatureModal">
       Add New Feature Task
     </button>
+    <button type="button" class="btn btn-primary comment-btn" data-toggle="modal" data-target="#featureComment">
+      Add Feature Note
+    </button>
     <hr>
     <h1>{{feature.title}}</h1>
     <h1>{{feature.color}}</h1>
     <small>Feature Owner: {{feature.owner}}</small>
     <h5>{{feature.assigned_to}}</h5>
     <h5>Complete? {{feature.complete}}</h5>
+
+
     {% if feature.owner == request.user %}
       <a class="btn btn-xs btn-danger" href="{% url 'projects:delete_feature' pk=feature.pk %}">Delete</a>
     {% endif %}
@@ -168,7 +218,21 @@
     {% endif %}
   </div><hr>
 
+
+
   <div class="container calendar-container">
+    <div class="form-check">
+      <input type="checkbox" id="tooltipsOn" name="tooltips" value="">
+      <label class="form-check-label" for="tooltipsOn">Turn On Tooltips</label>
+      <a  data-container="body" data-toggle="popover" data-placement="right"
+          data-content="By activating tooltips, you can get quick insights on
+                        your task progress by simply hovering over the task.
+                        Give it a try!"
+          title="Instant Insights" >
+        <span class="glyphicon glyphicon-info-sign"></span>
+      </a>
+
+    </div>
     <div id="calendar">
 
     </div>
@@ -176,15 +240,12 @@
   <hr>
   <div class="container-fluid">
     <div class="row">
-      {% for task in tasks %}
-      <div class="col-md-3">
+      {% for note in notes %}
+      <div class="col-md-12">
         <div class="jumbotron">
-          <a href="{% url 'projects:task_view' pk=task.pk %}"><h3>{{task.title}}</h3></a>
-          <p>{{task.details|truncatechars:50}}</p>
-          <small>Creator: {{task.feature.owner}}</small><br>
-          {% if not task.assigned_to == None %}
-            <small>Assigned To: {{task.assigned_to}}</small>
-          {% endif %}
+          <p>{{note.details}}</p>
+          <small>By: {{note.author.first_name}} {{note.author.last_name}}</small><br>
+          <small>Created: {{note.created_date}}</small>
         </div>
       </div>
       {% endfor %}
@@ -266,6 +327,28 @@
     </div>
   </div>
 </div>
+
+
+<div id="featureComment" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">New Feature Note</h4>
+      </div>
+      <div class="modal-body">
+        <form class="" action="{% url 'projects:new_feature_comment' pk=feature.pk %}" method="post">
+          {% csrf_token %}
+          <textarea class="form-control" name="details" rows="8" cols="80" placeholder="New Feature Note Details"></textarea>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Add Note</button>
+          </div>
+        </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 
 {% endblock %}

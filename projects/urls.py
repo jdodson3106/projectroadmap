@@ -15,8 +15,10 @@ urlpatterns = [
     path('feature/<int:pk>/edit', views.update_feature, name='update_feature'),
     path('feature/<int:pk>/delete', DeleteFeature.as_view(), name='delete_feature'),
     path('feature/<int:pk>/marked_complete', views.mark_feature_complete, name='marked_complete'),
+    path('feature/<int:pk>/comment', views.new_feature_comment, name='new_feature_comment'),
     path('task/<int:pk>/add-task', views.add_task_to_feature, name='add_task'),
     path('task/<int:pk>', TaskDetail.as_view(), name='task_view'),
     path('task/<int:pk>/delete', DeleteTask.as_view(), name='delete_task'),
     path('task/<int:pk>/edit', views.update_task, name='update_task'),
+    path('task/<int:pk>/comment', views.new_task_comment, name='new_task_comment'),
 ]

@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from accounts.models import User, Employee
-from projects.models import Project, Feature, Task
+from projects.models import Project, Feature, Task, TaskComment, FeatureComment
 
 
 class CreateProjectForm(ModelForm):
@@ -35,3 +35,16 @@ class TaskCreationForm(ModelForm):
         model = Task
         fields = ['title', 'details', 'start_date', 'start_time',
                   'deadline', 'end_time', 'assigned_to', 'color']
+
+
+class TaskCommentForm(ModelForm):
+
+    class Meta:
+        model = TaskComment
+        fields = ['details']
+
+class FeatureCommentForm(ModelForm):
+
+    class Meta:
+        model = FeatureComment
+        fields = ['details']

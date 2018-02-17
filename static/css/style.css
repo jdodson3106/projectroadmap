@@ -169,3 +169,25 @@
   position: relative;
   top: 3px;
 }
+
+.fc-today{
+  background-color: #CFD8D7 !important;
+  color: #364958;
+}
+
+/*****************
+   Task Modal
+******************/
+
+.tooltipevent {
+  width:250px;
+  height:200px;
+  padding: 25px;
+  color: white;
+  /* background: #00DCB3; */
+  background-color: #304352;
+  border: 5px solid white;
+  border-radius: 10px;
+  position:absolute;
+  z-index:10001;
+}

@@ -96,3 +96,20 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def get_comment_count(self):
+        return self.taskcomment_set.all().count()
+
+class TaskComment(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    task = models.ManyToManyField(Task)
+    details = models.CharField(max_length=2000)
+    created_date = models.DateTimeField(auto_now_add=True)
+
+
+class FeatureComment(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    feature = models.ManyToManyField(Feature)
+    details = models.CharField(max_length=2000)
+    created_date = models.DateTimeField(auto_now_add=True)

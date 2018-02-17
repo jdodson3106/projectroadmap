@@ -10,8 +10,9 @@ from django.views.generic import (CreateView, ListView, TemplateView,
                                   DetailView, DeleteView, UpdateView)
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from accounts.models import User, Employee
-from projects.models import Project, Feature, Task
-from projects.forms import CreateProjectForm, FeatureCreationForm, TaskCreationForm
+from projects.models import Project, Feature, Task, FeatureComment, TaskComment
+from projects.forms import (CreateProjectForm, FeatureCreationForm,
+                            TaskCreationForm, FeatureCommentForm, TaskCommentForm)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from contextualdata.context_manage import ContextManager
 import datetime
@@ -107,6 +108,8 @@ class FeatureView(DetailView):
         context['tasks'] = tasks
         employees = Employee.objects.filter(boss=self.object.project.owner)
         context['employees'] = employees
+        notes = FeatureComment.objects.filter(feature=self.get_object())
+        context['notes'] = notes
         return context
 
 class DeleteFeature(DeleteView):
@@ -122,6 +125,24 @@ def mark_feature_complete(request, pk):
     feature.complete = True
     feature.save()
     return redirect('projects:feature_view', pk=pk)
+
+def new_feature_comment(request, pk):
+    feature = get_object_or_404(Feature, pk=pk)
+    form = FeatureCommentForm(request.POST or None)
+
+    if form.is_valid():
+        print('valid')
+        comment = FeatureComment()
+        comment.author = request.user
+        comment.details = form.cleaned_data.get('details')
+        comment.save()
+        comment.feature.add(feature)
+        return redirect('projects:feature_view', pk=pk)
+    print("not valid")
+    args = {'alert':'Comment Not Added', 'form':form} # TODO: figure out how to send args with redirect
+    return redirect('projects:feature_view', pk=pk)
+
+
 
 # TODO: Add slug field to project to create specific call variables between
 #       feature and project calls.
@@ -179,6 +200,13 @@ class TaskDetail(DetailView):
     model = Task
     template_name = 'projects/task_view.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(TaskDetail, self).get_context_data(**kwargs)
+        notes = TaskComment.objects.filter(task=self.get_object())
+        context['notes'] = notes
+        return context
+
+
 class DeleteTask(DeleteView):
     model = Task
     template_name = 'projects/delete_task.html'
@@ -186,6 +214,22 @@ class DeleteTask(DeleteView):
     def get_success_url(self):
         feature = self.object.feature
         return reverse_lazy( 'projects:feature_view', kwargs={'pk': feature.pk})
+
+
+def new_task_comment(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    form = TaskCommentForm(request.POST or None)
+    if form.is_valid():
+        print("valid")
+        comment = TaskComment()
+        comment.author = request.user
+        comment.details = form.cleaned_data.get('details')
+        comment.save()
+        comment.task.add(task)
+        return redirect('projects:task_view', pk=pk)
+    for errors in form.errors:
+        print(errors)
+    return redirect('projects:task_view', pk=pk)
 
 
 def get_feature_object(request):

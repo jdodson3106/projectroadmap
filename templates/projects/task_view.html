@@ -25,7 +25,50 @@
     {% if request.user == task.project.owner %}
       <a class="btn btn-xs btn-danger" href="{% url 'projects:delete_task' pk=task.pk %}">Delete</a>
     {% endif %}
+
+    <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#commentModal">
+      Add Note
+    </button>
   </div>
+
+<div class="container">
+  <div class="container">
+    <div class="row">
+      {% for note in notes %}
+      <div class="col-md-12">
+        <div class="jumbotron">
+          <p>{{note.details}}</p>
+          <small>By: {{note.author.first_name}} {{note.author.last_name}}</small><br>
+          <small>Created: {{note.created_date}}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+
+  <div id="commentModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">New Task Note</h4>
+        </div>
+        <div class="modal-body">
+          <form class="" action="{% url 'projects:new_task_comment' pk=task.pk %}" method="post">
+            {% csrf_token %}
+            <textarea class="form-control" name="details" rows="8" cols="80" placeholder="New Task Note"></textarea>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Add Note</button>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 
 </div>
 
