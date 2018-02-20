@@ -25,10 +25,27 @@
     {% if request.user == task.project.owner %}
       <a class="btn btn-xs btn-danger" href="{% url 'projects:delete_task' pk=task.pk %}">Delete</a>
     {% endif %}
+    {% if request.user == feature.owner or request.user == task.assigned_to %}
+      {% if not task.complete %}
+        <a href="{% url 'projects:task_marked_complete' pk=task.pk %}">Mark as Complete</a>
+      {% elif task.complete %}
+        <a href="{% url 'projects:task_marked_incomplete' pk=task.pk %}">Keep Working</a>
+      {% endif %}
+    {% endif %}
 
     <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#commentModal">
       Add Note
     </button>
+    <button type="button" onclick="clock_in_start()" class="btn btn-warning btn-xs" name="button">Clock In</button>
+    <button type="button" onclick="clock_out_start()" class="btn btn-warning btn-xs" name="button">Clock Out</button>
+  </div>
+
+  <div class="jumbotron">
+    {% if task.complete %}
+      <h1>Completed!</h1>
+    {% elif not task.complete %}
+      <h1>Still In Progress</h1>
+    {% endif %}
   </div>
 
 <div class="container">

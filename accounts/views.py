@@ -38,6 +38,7 @@ class CreateUserView(CreateView):
             return reverse_lazy('accounts:register')
 
 
+
 class CreateEmployee(CreateView):
     model = Employee
     form_class = NewEmployeeForm
@@ -49,6 +50,8 @@ class CreateEmployee(CreateView):
 
     def get_success_url(self):
         return reverse_lazy('accounts:my_profile')
+
+
 
 
 

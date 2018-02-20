@@ -92,10 +92,11 @@
         <div class="row">
         {% for project in projects %}
           <div class="col-md-12 col-sm-6 thmbnail">
-            <a href="{% url 'projects:project_view' pk=project.pk %}">
               <div class="row project-container">
                 <div id="color-set" class="col-md-4 caption">
                   <h5>{{project.title}}</h5>
+                  <a href="{% url 'projects:project_view' pk=project.pk %}">Project Calendar</a>
+                  <a href="#">Project Task Board</a>
                 </div>
                 <div class="col-md-8 pull-right">
                   {% if project.features.all < 1 %}
@@ -116,8 +117,6 @@
                   {% endif %}
                 </div>
               </div>
-
-            </a>
           </div>
         {% endfor %}
         </div>

@@ -55,7 +55,7 @@ class Feature(models.Model):
                               on_delete=models.CASCADE,
                               related_name='feature_owner', default=1)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    assigned_to = models.ForeignKey(Employee, on_delete=models.CASCADE,
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                     related_name='feature_assignee', null=True)
     title = models.CharField(max_length=200)
     details = models.CharField(max_length=2000)
@@ -89,10 +89,13 @@ class Task(models.Model):
     color = models.CharField(default='#191919', max_length=200)
     estimated_completion_time = models.CharField(max_length=200, null=True, blank=True)
     cost = models.CharField(max_length=200)
-    assigned_to = models.ForeignKey(Employee, on_delete=models.CASCADE,
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                     related_name='task_assignee', null=True)
     created_date = models.DateTimeField(auto_now_add=True)
+    clock_in = models.TimeField(null=True, blank=True)
+    clock_out = models.TimeField(null=True, blank=True)
     complete = models.BooleanField(default=False)
+    in_work = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

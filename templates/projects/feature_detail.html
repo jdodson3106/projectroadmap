@@ -49,6 +49,7 @@
             end: "{{task.end_date_time|date:'c'}}",
             url: "{% url 'projects:task_view' pk=task.pk %}",
             complete: "{{task.complete}}",
+            in_progress: "{{task.in_work}}",
             assignment: "{{task.assigned_to.first_name}}",
             comment_count: "{{task.get_comment_count}}",
             color: "{{task.color}}",
@@ -71,8 +72,6 @@
       },
 
       eventMouseover: function(event) {
-        // TODO: Create tooltip to show current task data
-        // $('#task-overview').modal('show');
         // parse time using 24-hour clock and use UTC to prevent DST issues
         var start = moment.utc(event.start, "HH:mm");
         var end = moment.utc(event.end, "HH:mm");
@@ -86,6 +85,7 @@
         // format a string result
         var hour = moment.utc(+d).format('H');
         var minute = moment.utc(+d).format('mm')
+
 
         var tooltip = '<div class="tooltipevent">' + 'Estimated completion:<br>' +
                       hour + ' hours & ' + minute + ' mins<hr>' +
@@ -214,10 +214,11 @@
     {% if request.user == feature.owner or request.user == feature.assigned_to %}
       {% if not feature.complete %}
         <a href="{% url 'projects:marked_complete' pk=feature.pk %}">Mark as Complete</a>
+      {% elif feature.complete %}
+        <a href="{% url 'projects:marked_incomplete' pk=feature.pk %}">Keep Working</a>
       {% endif %}
     {% endif %}
   </div><hr>
-
 
 
   <div class="container calendar-container">
@@ -293,7 +294,7 @@
 
           <hr>
             <select class="form-control" name="assigned_to">
-              <option>{{feature.project.owner.first_name}} {{feature.project.owner.last_name}} (Project Owner)</option>
+              <option value="{{feature.project.owner.id}}">{{feature.project.owner}} (Project Owner)</option>
               {% for employee in employees %}
               <!-- Set the value to employee.id so the HTTP POST Request knows
                    which Employee object to assign to the value -->

@@ -211,6 +211,7 @@
 
             <label for="">Feauture Lead:</label>
             <select class="form-control login-field" name="assigned_to">
+              <option value="{{user.id}}">{{project.owner.first_name}} {{project.owner.last_name}} (Project Owner)</option>
               {% for employee in employees %}
                 <option value="{{employee.id}}">{{employee.first_name.capitalize}} {{employee.last_name.capitalize}}</option>
               {% endfor %}

@@ -16,6 +16,7 @@ from projects.forms import (CreateProjectForm, FeatureCreationForm,
 from django.contrib.auth.mixins import LoginRequiredMixin
 from contextualdata.context_manage import ContextManager
 import datetime
+from datetime import date
 
 
 class CreateProject(CreateView):
@@ -126,6 +127,13 @@ def mark_feature_complete(request, pk):
     feature.save()
     return redirect('projects:feature_view', pk=pk)
 
+def mark_feature_incomplete(request, pk):
+    feature = get_object_or_404(Feature, pk=pk)
+    feature.complete = False
+    feature.save()
+    return redirect('projects:feature_view', pk=pk)
+
+
 def new_feature_comment(request, pk):
     feature = get_object_or_404(Feature, pk=pk)
     form = FeatureCommentForm(request.POST or None)
@@ -215,6 +223,17 @@ class DeleteTask(DeleteView):
         feature = self.object.feature
         return reverse_lazy( 'projects:feature_view', kwargs={'pk': feature.pk})
 
+def mark_task_complete(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    task.complete = True
+    task.save()
+    return redirect('projects:task_view', pk=pk)
+
+def mark_task_incomplete(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    task.complete = False
+    task.save()
+    return redirect('projects:task_view', pk=pk)
 
 def new_task_comment(request, pk):
     task = get_object_or_404(Task, pk=pk)
@@ -238,3 +257,34 @@ def get_feature_object(request):
         "pk": feature.pk
     }
     return JsonResponse(data)
+
+
+"""
+    Time handler for clocking in and out of tasks. Needs to send a JsonResponse
+    to the front end so jQuery can increment time. Only start and stop are managed
+    with the db and django. jQuery will handle the rest on the front end.
+"""
+# TODO: Add handler for in request is not an ajax request on clock in and out
+def task_clock_in(request, pk):
+    if request.is_ajax():
+        data = dict()
+        task = get_object_or_404(Task, pk=pk)
+        task.clock_in = datetime.datetime.now().time()
+        task.in_work = True
+        task.save()
+        # print(task.clock_in)
+        data['clock_in'] = task.clock_in
+        data['in_work'] = task.in_work
+        return JsonResponse(data)
+
+def task_clock_out(request, pk):
+    if request.is_ajax():
+        data = dict()
+        task = get_object_or_404(Task, pk=pk)
+        task.clock_out = datetime.datetime.now().time()
+        task.in_work = False
+        task.save()
+        # print(datetime.datetime.combine(date.min, task.clock_out) - datetime.datetime.combine(date.min, task.clock_in))
+        data['clock_out'] = task.clock_out
+        data['in_work'] = task.in_work
+        return JsonResponse(data)
