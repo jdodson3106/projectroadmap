@@ -43,6 +43,7 @@
         },
 
           {% for task in tasks %}
+          {% load tz %}
           {
             title: '{{task.title}}',
             start: '{{task.start_date_time|date:"c"}}',
@@ -50,6 +51,8 @@
             url: "{% url 'projects:task_view' pk=task.pk %}",
             complete: "{{task.complete}}",
             in_progress: "{{task.in_work}}",
+            start_time: "{{task.clock_in|date:'c'}}",
+            end_time: "{{task.clock_out|date:'c'}}",
             assignment: "{{task.assigned_to.first_name}}",
             comment_count: "{{task.get_comment_count}}",
             color: "{{task.color}}",
@@ -86,9 +89,67 @@
         var hour = moment.utc(+d).format('H');
         var minute = moment.utc(+d).format('mm')
 
+        var status;
+        if (event.complete == "True") {
+          status = "Complete";
+        }
+
+        if (event.in_progress == "True"){
+          status = 'In Progress';
+        }
+
+        if (event.in_progress == "False" && event.complete == "False") {
+          status = 'Not Started';
+        }
+
+        // TODO: Fix timzone issue. JS is giving Current but Py is off by 6 hrs
+        var currentMinutes = parseInt(moment().format('mm'));
+        var currentHours = parseInt(moment().format('hh'));
+        var startMinutes = moment(event.start_time).format('mm');
+        var startHours = moment(event.start_time).format('hh');
+        var totalMinutes;
+        var totalHours;
+
+        console.log(currentMinutes);
+        console.log(startMinutes);
+        console.log(currentHours);
+        console.log(startHours);
+        if (currentMinutes >= startMinutes) {
+          totalMinutes = currentMinutes - startMinutes;
+
+        } else {
+          totalMinutes = startMinutes - currentMinutes;
+
+        }
+        if (currentHours >= startHours) {
+          totalHours = currentHours - startHours;
+
+        } else {
+          totalHours = startHours - currentHours;
+
+        }
+
+        if (isNaN(totalMinutes)) {
+          totalMinutes = "00";
+        }
+        else if (totalMinutes < 10) {
+          totalMinutes = "0" + totalMinutes;
+        }
+
+        if(isNaN(totalHours)){
+          totalHours = "00"
+        }
+        else if (totalHours < 10) {
+          totalHours = "0" + totalHours;
+        }
+
+        console.log(totalHours + "hrs " + totalMinutes + "mins");
+
+
 
         var tooltip = '<div class="tooltipevent">' + 'Estimated completion:<br>' +
                       hour + ' hours & ' + minute + ' mins<hr>' +
+                      '<p> Time Worked: ' + totalHours + 'hrs ' + totalMinutes + 'mins </p>'+ '<hr> <p>Status: ' + status + '</p>'+
                       event.comment_count + " notes " + '</div>';
 
         var $tooltip = $(tooltip).appendTo('body');

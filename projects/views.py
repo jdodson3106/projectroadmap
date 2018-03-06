@@ -16,7 +16,9 @@ from projects.forms import (CreateProjectForm, FeatureCreationForm,
 from django.contrib.auth.mixins import LoginRequiredMixin
 from contextualdata.context_manage import ContextManager
 import datetime
-from datetime import date
+import pytz
+from datetime import date, time
+from django.utils import timezone
 
 
 class CreateProject(CreateView):
@@ -39,6 +41,13 @@ class ProjectDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
         project = self.object
+        if project.calculate_completion_percent == 100:
+            project.complete = True;
+            project.save()
+
+        if project.calculate_completion_percent < 100:
+            project.complete = False
+            project.save()
         new_feature_form = FeatureCreationForm()
         context['new_feature_form'] = new_feature_form
         features = Feature.objects.filter(project=self.get_object())
@@ -226,6 +235,7 @@ class DeleteTask(DeleteView):
 def mark_task_complete(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task.complete = True
+    task.in_work = False
     task.save()
     return redirect('projects:task_view', pk=pk)
 
@@ -266,25 +276,29 @@ def get_feature_object(request):
 """
 # TODO: Add handler for in request is not an ajax request on clock in and out
 def task_clock_in(request, pk):
+    tz = timezone.activate(pytz.timezone('US/Central'))
     if request.is_ajax():
         data = dict()
         task = get_object_or_404(Task, pk=pk)
-        task.clock_in = datetime.datetime.now().time()
+        task.clock_in = timezone.localtime(timezone.now())
         task.in_work = True
         task.save()
-        # print(task.clock_in)
-        data['clock_in'] = task.clock_in
+        print(task.clock_in)
+        data['clock_in'] = datetime.datetime.combine(date.today(), task.clock_in.time())
         data['in_work'] = task.in_work
         return JsonResponse(data)
 
 def task_clock_out(request, pk):
+    # tz = timezone.activate(pytz.timezone('US/Central'))
     if request.is_ajax():
         data = dict()
         task = get_object_or_404(Task, pk=pk)
-        task.clock_out = datetime.datetime.now().time()
+        task.clock_out = timezone.localtime(timezone.now())
         task.in_work = False
         task.save()
-        # print(datetime.datetime.combine(date.min, task.clock_out) - datetime.datetime.combine(date.min, task.clock_in))
-        data['clock_out'] = task.clock_out
+        total = datetime.datetime.combine(date.today(), task.clock_out.time()) - datetime.datetime.combine(date.today(), task.clock_in.time())
+        print(task.get_seconds_count())
+        data['clock_out'] = datetime.datetime.combine(date.today(), task.clock_out.time())
+        data['clock_in'] = datetime.datetime.combine(date.today(), task.clock_in.time())
         data['in_work'] = task.in_work
         return JsonResponse(data)

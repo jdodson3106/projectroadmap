@@ -6,6 +6,7 @@ from django.conf import settings
 from accounts.models import User, Employee
 from projectcalendar import projectcalendar
 
+
 # Create your models here.
 class Project(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -16,10 +17,10 @@ class Project(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateTimeField(default=timezone.now)
     deadline = models.DateTimeField(default=timezone.now)
+    tz = models.CharField(max_length=200, default='(US/Eastern)')
     color = models.CharField(default='#191919', max_length=200)
     complete = models.BooleanField(default=False)
 
-    # TODO: Create status on all classes ('open', 'in-work', 'complete')
 
     def __str__(self):
         return self.title
@@ -36,8 +37,9 @@ class Project(models.Model):
 
     @property
     def is_past_due(self):
-        return date.today() > self.deadline.date()
-
+        if not self.complete:
+            return date.today() > self.deadline.date()
+        return True
     @property
     def get_total_days(self):
         total_days = self.deadline.date() - self.start_date.date()
@@ -92,17 +94,22 @@ class Task(models.Model):
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                     related_name='task_assignee', null=True)
     created_date = models.DateTimeField(auto_now_add=True)
-    clock_in = models.TimeField(null=True, blank=True)
-    clock_out = models.TimeField(null=True, blank=True)
+    clock_in = models.DateTimeField(null=True, blank=True)
+    clock_out = models.DateTimeField(null=True, blank=True)
     complete = models.BooleanField(default=False)
     in_work = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
 
+    def get_seconds_count(self):
+        total = self.clock_out - self.clock_in
+        return total
+
     @property
     def get_comment_count(self):
         return self.taskcomment_set.all().count()
+
 
 class TaskComment(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

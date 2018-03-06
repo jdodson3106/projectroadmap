@@ -137,10 +137,15 @@
       <li class="active">{{project.title}}</li>
     </ol>
   </div>
-  {% if project.is_past_due %}
+  {% if project.is_past_due and not project.complete %}
     <div class="alert alert-danger">
       <h2>{{project.title}} is past the deadline!!</h2>
     </div>
+
+  {% elif project.complete %}
+  <div class="alert alert-success">
+    <h2>{{project.title}} is 100% complete!</h2>
+  </div>
   {% endif %}
   <div class="container-fluid">
     <button type="button" class="btn btn-primary comment-btn" data-toggle="modal" data-target="#newFeatureModal">
