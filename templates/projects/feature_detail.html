@@ -53,7 +53,7 @@
             in_progress: "{{task.in_work}}",
             start_time: "{{task.clock_in|date:'c'}}",
             end_time: "{{task.clock_out|date:'c'}}",
-            assignment: "{{task.assigned_to.first_name}}",
+            assignment: "{{task.assigned_to.first_name}} {{task.assigned_to.last_name|make_list|first}}",
             comment_count: "{{task.get_comment_count}}",
             color: "{{task.color}}",
             resourceId: {{task.assigned_to.id}}
@@ -67,6 +67,9 @@
         {% for employee in employees %}
           {id:{{employee.id}}, title: "{{employee.first_name}} {{employee.last_name}}"},
         {% endfor %}
+        {% if request.user == feature.project.owner %}
+          {id:{{request.user.id}}, title: "{{request.user.first_name}} {{request.user.last_name}}"}
+        {% endif %}
     ],
 
       eventRender: function(event, element) {
@@ -98,44 +101,85 @@
           status = 'In Progress';
         }
 
-        if (event.in_progress == "False" && event.complete == "False") {
+        if (event.in_progress == "False" && event.complete == "False" && !event.start_time == "") {
+          status = "In Progress";
+        }
+
+        if (event.in_progress == "False" && event.complete == "False" && event.start_time == "") {
           status = 'Not Started';
         }
 
-        // TODO: Fix timzone issue. JS is giving Current but Py is off by 6 hrs
         var currentMinutes = parseInt(moment().format('mm'));
         var currentHours = parseInt(moment().format('hh'));
         var startMinutes = moment(event.start_time).format('mm');
         var startHours = moment(event.start_time).format('hh');
+        var endHours = moment(event.end_time).format('hh');
+        var endMinutes = moment(event.end_time).format('mm');
         var totalMinutes;
         var totalHours;
+        console.log(event.start_time);
+        // Calculate the time spent on project or the current time elapsed on project
+        // check if endhours are present
+        // if no end hours
+        if (endHours == 'Invalid date') {
+          // if current mins greater than start mins, totalmins = diff(curmins & startmins)
+          if (currentMinutes >= startMinutes) {
+            totalMinutes = currentMinutes - startMinutes;
 
-        console.log(currentMinutes);
-        console.log(startMinutes);
-        console.log(currentHours);
-        console.log(startHours);
-        if (currentMinutes >= startMinutes) {
-          totalMinutes = currentMinutes - startMinutes;
+            // else totalmins = diff(curmins & startmins) + 60 to calculate total minutes after the hour has past
+          } else {
+            totalMinutes = (currentMinutes - startMinutes) + 60;
 
+          }
+          // if only one hour has past and the currmins are still less than start
+          // then a whole hour hasn't past so I
+          // set the hours to 0 to show only minutes have past; not a full hour.
+          if ((currentHours - startHours) == 1 && currentMinutes < startMinutes) {
+            totalHours = 0;
+
+            // same calculations on hours as minutes.
+          } else if (currentHours >= startHours) {
+            totalHours = currentHours - startHours;
+
+          } else {
+            totalHours = (currentHours - startHours) + 60;
+
+          }
+
+          // if there is an end_time then we perform all of the same logic
+          // using the end_time instead of the current time.
         } else {
-          totalMinutes = startMinutes - currentMinutes;
 
+          if (endMinutes >= startMinutes) {
+            totalMinutes = endMinutes - startMinutes;
+
+          } else {
+            totalMinutes = (endMinutes - startMinutes) + 60;
+
+          }
+          if ((endHours - startHours) == 1 && endMinutes < startMinutes) {
+            totalHours = 0;
+
+          } else if (endHours >= startHours) {
+            totalHours = endHours - startHours;
+
+          } else {
+            totalHours = (endHours - startHours) + 60;
+
+          }
         }
-        if (currentHours >= startHours) {
-          totalHours = currentHours - startHours;
 
-        } else {
-          totalHours = startHours - currentHours;
-
-        }
-
+        // if the totaltime hasn't been calculated (task isn't started) then
+        // populate the fields with "00" to display no time instead of NaN in the
+        // time worked field in the tooltip popup.
         if (isNaN(totalMinutes)) {
           totalMinutes = "00";
-        }
+        } // if the time is less than 10 then concat a "0" to the front for better look.
         else if (totalMinutes < 10) {
           totalMinutes = "0" + totalMinutes;
         }
 
+        // same logic as above for the minutes operations.
         if(isNaN(totalHours)){
           totalHours = "00"
         }
@@ -143,13 +187,9 @@
           totalHours = "0" + totalHours;
         }
 
-        console.log(totalHours + "hrs " + totalMinutes + "mins");
-
-
-
         var tooltip = '<div class="tooltipevent">' + 'Estimated completion:<br>' +
                       hour + ' hours & ' + minute + ' mins<hr>' +
-                      '<p> Time Worked: ' + totalHours + 'hrs ' + totalMinutes + 'mins </p>'+ '<hr> <p>Status: ' + status + '</p>'+
+                      '<p> Time Worked: ' + totalHours + ' hrs ' + totalMinutes + ' mins </p>'+ '<hr> <p>Status: ' + status + '</p>'+
                       event.comment_count + " notes " + '</div>';
 
         var $tooltip = $(tooltip).appendTo('body');
@@ -248,7 +288,7 @@
 <div class="container">
   <div class="container breadcrumb-container">
     <ol class="breadcrumb breadcrumb-arrow">
-      <li><a onclick="loadProjectsTab()" href="{% url 'accounts:admin_home' pk=request.user.pk %}">All Projects</a></li>
+      <li><a onclick="loadProjectsTab()" href="{% url 'accounts:admin_home' pk=request.user.pk %}">Dashboard</a></li>
       <li><a href="{% url 'projects:project_view' pk=feature.project.pk %}">{{feature.project.title}}</a></li>
       <li class="active">{{feature.title}}</li>
     </ol>

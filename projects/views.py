@@ -41,6 +41,7 @@ class ProjectDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
         project = self.object
+        print(project.tz)
         if project.calculate_completion_percent == 100:
             project.complete = True;
             project.save()
@@ -81,7 +82,7 @@ def add_feature(request, pk):
         feature.color = form.cleaned_data.get('color')
         feature.save()
         return redirect('projects:project_view', pk=pk)
-    else:
+    else: # TODO: Create handler for invalid form. NO REDIRECT WITHOUT ERROR NOTICE
         for error in form.errors:
             print(error)
         print('from invalid')
@@ -163,7 +164,6 @@ def new_feature_comment(request, pk):
 
 # TODO: Add slug field to project to create specific call variables between
 #       feature and project calls.
-# TODO: Create Breadcrumbs to track where you are in the project
 def add_task_to_feature(request, pk):
     form = TaskCreationForm(request.POST or None)
     feature = get_object_or_404(Feature, pk=pk)
@@ -276,10 +276,11 @@ def get_feature_object(request):
 """
 # TODO: Add handler for in request is not an ajax request on clock in and out
 def task_clock_in(request, pk):
-    tz = timezone.activate(pytz.timezone('US/Central'))
+
     if request.is_ajax():
         data = dict()
         task = get_object_or_404(Task, pk=pk)
+        tz = timezone.activate(pytz.timezone(task.project.tz))
         task.clock_in = timezone.localtime(timezone.now())
         task.in_work = True
         task.save()
@@ -289,10 +290,10 @@ def task_clock_in(request, pk):
         return JsonResponse(data)
 
 def task_clock_out(request, pk):
-    # tz = timezone.activate(pytz.timezone('US/Central'))
     if request.is_ajax():
         data = dict()
         task = get_object_or_404(Task, pk=pk)
+        tz = timezone.activate(pytz.timezone(task.project.tz))
         task.clock_out = timezone.localtime(timezone.now())
         task.in_work = False
         task.save()

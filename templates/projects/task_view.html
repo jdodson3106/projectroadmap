@@ -5,7 +5,7 @@
 <div class="container">
   <div class="container breadcrumb-container">
     <ol class="breadcrumb breadcrumb-arrow">
-      <li><a onclick="loadProjectsTab()" href="{% url 'accounts:admin_home' pk=request.user.pk %}">All Projects</a></li>
+      <li><a onclick="loadProjectsTab()" href="{% url 'accounts:admin_home' pk=request.user.pk %}">Dashboard</a></li>
       <li><a href="{% url 'projects:project_view' pk=task.project.pk %}">{{task.project.title}}</a></li>
       <li><a href="{% url 'projects:feature_view' pk=task.feature.pk %}">{{task.feature.title}}</a></li>
       <li class="active">{{task.title}}</li>
@@ -41,14 +41,17 @@
   </div>
 
   <div class="jumbotron">
-    {% if task.complete %}
-      <h1>Completed!</h1>
-    {% elif not task.complete %}
-      <h1>Still In Progress</h1>
-      <h3>Clock In Time: <span id="hours">{{task.clock_in|time:'h'}}</span> :
-                         <span id="minutes">{{task.clock_in|time:'i'}}</span>
-                         <span id="offset">{{task.clock_in|time:'A'}}</span> </h3>
-    {% endif %}
+    {% load tz %}
+    {% timezone task.project.tz %}
+      {% if task.complete %}
+        <h1>Completed!</h1>
+      {% elif not task.complete %}
+        <h1>Still In Progress</h1>
+        <h3>Clock In Time: <span id="hours">{{task.clock_in|time:'h'}}</span> :
+                           <span id="minutes">{{task.clock_in|time:'i'}}</span>
+                           <span id="offset">{{task.clock_in|time:'A'}}</span> </h3>
+      {% endif %}
+    {% endtimezone %}
   </div>
 
 <div class="container">

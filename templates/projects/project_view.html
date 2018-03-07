@@ -133,7 +133,7 @@
 <div class="container">
   <div class="container breadcrumb-container">
     <ol class="breadcrumb breadcrumb-arrow">
-      <li><a onclick="loadProjectsTab().delay(1000)" href="{% url 'accounts:admin_home' pk=request.user.pk %}">All Projects</a></li>
+      <li><a href="{% url 'accounts:admin_home' pk=request.user.pk %}">Dashboard</a></li>
       <li class="active">{{project.title}}</li>
     </ol>
   </div>

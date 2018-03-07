@@ -5,7 +5,12 @@ from django.utils import timezone
 from django.conf import settings
 from accounts.models import User, Employee
 from projectcalendar import projectcalendar
+import pytz
 
+TIMEZONES = []
+for tz in pytz.all_timezones:
+    if tz[0] == 'U' or tz[0] == 'C':
+        TIMEZONES.append((tz, tz))
 
 # Create your models here.
 class Project(models.Model):
@@ -17,8 +22,8 @@ class Project(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     start_date = models.DateTimeField(default=timezone.now)
     deadline = models.DateTimeField(default=timezone.now)
-    tz = models.CharField(max_length=200, default='(US/Eastern)')
-    color = models.CharField(default='#191919', max_length=200)
+    tz = models.CharField(max_length=200, choices=TIMEZONES, default=0)
+    color = models.CharField(default='#191919', max_length=200, blank=True)
     complete = models.BooleanField(default=False)
 
 

@@ -27,11 +27,14 @@
               <!-- <label class="login-label">{{form.first_name.label}}</label> -->
               <input type="text" name="title" class="form-control login-field" value="{{title}}" placeholder="{{form.title.label}}"><br>
 
+              <label class="login-label">{{form.tz.label}}</label>
+              {{form.tz}} <br>
+
               <label class="login-label">{{form.start_date.label}}</label>
               <input type="date" name="start_date" class="form-control login-field" value="start_date" placeholder=""><br>
 
               <label class="login-label">{{form.deadline.label}}</label>
-              <input type="date" name="deadline" class="form-control login-field" value="{{deadline}}" placeholder="{{form.deadline.label}} (Dollars)"><br>
+              <input type="date" name="deadline" class="form-control login-field" value="{{deadline}}" placeholder="{{form.deadline.label}}"><br>
 
               <input type="number" name="budget" class="form-control login-field" value="{{budget}}" placeholder="{{form.budget.label}} (Dollars)"><br>
 
